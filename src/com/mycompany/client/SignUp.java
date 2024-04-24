@@ -10,6 +10,7 @@ import com.smartgwt.client.widgets.form.fields.TextItem;
 import com.smartgwt.client.widgets.form.fields.IntegerItem;
 import com.smartgwt.client.widgets.form.fields.events.ClickEvent;
 import com.smartgwt.client.widgets.form.fields.events.ClickHandler;
+import jsinterop.annotations.JsMethod;
 
 public class SignUp implements EntryPoint {
 	
@@ -80,19 +81,24 @@ public class SignUp implements EntryPoint {
         buttonItem = new ButtonItem();  
         buttonItem.setName("submit");  
         buttonItem.setTitle("Create account");
+//        buttonItem.setBaseStyle("signupbtn");
         buttonItem.addClickHandler(new ClickHandler() {
 			
 			@Override
 			public void onClick(ClickEvent event) {
 				
-				if (firstname.getValueAsString().isEmpty() ||
-				lastname.getValueAsString().isEmpty() ||
-				email.getValueAsString().isEmpty() ||
-				password.getValueAsString().isEmpty() ||
-				repeat.getValueAsString().isEmpty() ||
-				age.getValueAsString().isEmpty() ||
-				phoneNumber.getValueAsString().isEmpty()) {
+				if (empty(firstname.getValueAsString()) ||
+						empty(lastname.getValueAsString()) ||
+						empty(email.getValueAsString()) ||
+						empty(password.getValueAsString()) ||
+						empty(repeat.getValueAsString()) ||
+						empty(age.getValueAsString()) ||
+						empty(phoneNumber.getValueAsString())) {
 					SC.say("Error", "Please fill all fields!");
+				}
+				else if (checkFields()) {
+					// create account
+					SC.say("Well Done");
 				}
 				
 			}
@@ -104,11 +110,10 @@ public class SignUp implements EntryPoint {
 	
 	boolean checkFields() {
 		//		email
-//		Matcher matcher = pattern.matcher(email.getValueAsString());
-//        if (!matcher.matches()) {
-//        	SC.say("Error", email.getValueAsString());
-//        	return false;
-//        }
+        if (!checkEmail(email.getValueAsString())) {
+        	SC.say("Error", "Invalid email address!");
+        	return false;
+        }
         
         // age
 		int age = Integer.parseInt(this.age.getValueAsString());
@@ -122,8 +127,8 @@ public class SignUp implements EntryPoint {
 		}
 		
 		// password
-		String pas = password.getValueAsString().split(" ")[0];
-		String rep = password.getValueAsString().split(" ")[1];
+		String pas = password.getValueAsString();
+		String rep = repeat.getValueAsString();
 		// equal pas and rep
 		if (!pas.equals(rep)) {
 			SC.say("Error", "Repeat password correctly!");
@@ -149,10 +154,25 @@ public class SignUp implements EntryPoint {
 		}
 		if (!hasUppercase || !hasLowercase || !hasDigit) {
 			SC.say("Error", "Password should contains both lowercase, uppercase and numbers!");
+			return false;
 		}
-		//
+		
+		//phone number
+		String phone = phoneNumber.getValueAsString();
+		if (phone.charAt(0) != '0' || phone.length() != 11) {
+			SC.say("Error", "Phone Number is not valid!");
+			return false;
+		}
 		
 		return true;
 	}
 
+	public static boolean empty( final String s ) {
+	  // Null-safe, short-circuit evaluation.
+	  return s == null || s.trim().isEmpty();
+	}
+
+    // Declare JavaScript function using JsMethod annotation
+    @JsMethod(namespace = "window", name = "checkEmail")
+    public static native boolean checkEmail(String email);
 }

@@ -1,25 +1,33 @@
-
 <html>
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-   
-    <title>Rastak</title>
-    <script> var isomorphicDir = "helloworld/sc/"; </script> 
-    
-    
-    
-    <script type="text/javascript" language="javascript" src="helloworld/helloworld.nocache.js"></script>
-    <script type="text/javascript" language="javascript" src="assets/js/loadScriptTagFiles.js"></script>
-    
-    <link rel="stylesheet" type="text/css" href="HelloWorld.css" />
 
-  </head>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 
-  <body>
-	
-	<div id="loginTab" class="loginTab">
-	
-	</div>
-		
-  </body>
+  <title>Rastak</title>
+  <script> var isomorphicDir = "helloworld/sc/"; </script>
+
+
+
+  <script type="text/javascript" language="javascript" src="helloworld/helloworld.nocache.js"></script>
+  <script type="text/javascript" language="javascript" src="assets/js/loadScriptTagFiles.js"></script>
+  <script>
+    function checkEmail(email) {
+      // Regular expression for validating email addresses
+      var regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+      return regex.test(email);
+    }
+  </script>
+
+  <link rel="stylesheet" type="text/css" href="HelloWorld.css" />
+
+</head>
+
+<body>
+
+  <div id="loginTab" class="loginTab">
+
+  </div>
+
+</body>
+
 </html>

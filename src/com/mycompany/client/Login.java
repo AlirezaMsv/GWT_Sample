@@ -10,6 +10,8 @@ import com.smartgwt.client.widgets.form.fields.TextItem;
 import com.smartgwt.client.widgets.form.fields.events.ClickEvent;
 import com.smartgwt.client.widgets.form.fields.events.ClickHandler;
 
+import jsinterop.annotations.JsMethod;
+
 public class Login implements EntryPoint {
 
 	DynamicForm form;
@@ -48,16 +50,20 @@ public class Login implements EntryPoint {
         buttonItem = new ButtonItem();  
         buttonItem.setName("submit");  
         buttonItem.setTitle("Login");
+//        buttonItem.setBaseStyle("loginbtn");
         buttonItem.addClickHandler(new ClickHandler() {
 			
 			@Override
 			public void onClick(ClickEvent event) {
 				
-				if (email.getValueAsString().isEmpty() ||
-				password.getValueAsString().isEmpty()) {
+				if (empty(email.getValueAsString()) ||
+				empty(email.getValueAsString())) {
 					SC.say("Error", "Please fill all fields!");
 				}
-				
+				else if (checkFields()) {
+					// create account
+					SC.say("Well Done");
+				}
 			}
 		});
           
@@ -65,5 +71,23 @@ public class Login implements EntryPoint {
   
 	}
 	
+	boolean checkFields() {
+		//		email
+        if (!checkEmail(email.getValueAsString())) {
+        	SC.say("Error", "Invalid email address!");
+        	return false;
+        }
+		return true;
+	}
+	
+	
+	public static boolean empty( final String s ) {
+	  // Null-safe, short-circuit evaluation.
+	  return s == null || s.trim().isEmpty();
+	}
+	
+	// Declare JavaScript function using JsMethod annotation
+	@JsMethod(namespace = "window", name = "checkEmail")
+	public static native boolean checkEmail(String email);
 
 }
