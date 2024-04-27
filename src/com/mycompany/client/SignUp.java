@@ -1,7 +1,6 @@
 package com.mycompany.client;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.core.client.EntryPoint;
 import com.smartgwt.client.util.SC;
@@ -12,17 +11,21 @@ import com.smartgwt.client.widgets.form.fields.TextItem;
 import com.smartgwt.client.widgets.form.fields.IntegerItem;
 import com.smartgwt.client.widgets.form.fields.events.ClickEvent;
 import com.smartgwt.client.widgets.form.fields.events.ClickHandler;
+import com.smartgwt.client.widgets.tab.TabSet;
+
 import jsinterop.annotations.JsMethod;
 
 public class SignUp implements EntryPoint {
 	
 	DynamicForm form;
+	TabSet topTabSet;
 	
 	private final GreetingServiceAsync greetingService = GWT.create(GreetingService.class);
 	
-	public DynamicForm buildForm() {
+	public DynamicForm buildForm(TabSet topTabSet) {
 		if (form == null) {
 			form =  new DynamicForm(); 
+			this.topTabSet = topTabSet;
 			onModuleLoad();
 		}
 		return form;
@@ -36,6 +39,16 @@ public class SignUp implements EntryPoint {
 	IntegerItem age;
 	TextItem phoneNumber;
 	ButtonItem buttonItem;
+	
+	private void clearFields() {
+		firstname.setValue("");
+		lastname.setValue("");
+		password.setValue("");
+		repeat.setValue("");
+		email.setValue("");
+		age.setValue("");
+		phoneNumber.setValue("");
+	}
 
 	@Override
 	public void onModuleLoad() {
@@ -67,16 +80,17 @@ public class SignUp implements EntryPoint {
         repeat.setTitle("Repeat:");
         repeat.setDefaultValue("");  
 
-        age = new IntegerItem();  
+        age = new IntegerItem();
         age.setName("age");  
         age.setTitle("Age:");
         age.setDefaultValue("");  
         age.setKeyPressFilter("[0-9]");
         
-        phoneNumber = new TextItem();  
+        phoneNumber = new TextItem();
         phoneNumber.setName("phoneNumber");  
         phoneNumber.setTitle("PhoneNumber:");
-        phoneNumber.setDefaultValue("");  
+        phoneNumber.setDefaultValue("");
+        phoneNumber.setKeyPressFilter("[0-9]");
   
         buttonItem = new ButtonItem();  
         buttonItem.setName("submit");  
@@ -87,18 +101,24 @@ public class SignUp implements EntryPoint {
 			@Override
 			public void onClick(ClickEvent event) {
 				System.out.println(greetingService.getClass().toString());
-//				if (empty(firstname.getValueAsString()) ||
-//						empty(lastname.getValueAsString()) ||
-//						empty(email.getValueAsString()) ||
-//						empty(password.getValueAsString()) ||
-//						empty(repeat.getValueAsString()) ||
-//						empty(age.getValueAsString()) ||
-//						empty(phoneNumber.getValueAsString())) {
-//					SC.say("Error", "Please fill all fields!");
-//				}
-//				else if (checkFields()) {
-					// create account
-				greetingService.greetServer(firstname.getValueAsString(), new AsyncCallback<String>() {
+				if (empty(firstname.getValueAsString()) ||
+						empty(lastname.getValueAsString()) ||
+						empty(email.getValueAsString()) ||
+						empty(password.getValueAsString()) ||
+						empty(repeat.getValueAsString()) ||
+						empty(age.getValueAsString()) ||
+						empty(phoneNumber.getValueAsString())) {
+					SC.say("Error", "Please fill all fields!");
+				}
+				else if (checkFields()) {
+//					 create account
+				greetingService.greetServer(firstname.getValueAsString().trim(),
+						lastname.getValueAsString().trim(),
+						phoneNumber.getValueAsString().trim(),
+						email.getValueAsString().trim(),
+						password.getValueAsString().trim(),
+						Short.valueOf(age.getValueAsString().trim()),
+						new AsyncCallback<String>() {
 					@Override
 					public void onFailure(Throwable caught) {
 						SC.say("Error", "sth went wrong");
@@ -106,11 +126,16 @@ public class SignUp implements EntryPoint {
 
 					@Override
 					public void onSuccess(String result) {
-						Window.alert(result);
-						SC.say("Well Done");
+						if (result == "ok") {
+							clearFields();
+							SC.say("Boom!", "Welcome");
+							topTabSet.selectTab(0);
+						}
+						else if (result == "error")
+							SC.say("Error", "A user with this email is already registered!");
 					}
 				  });
-//				}
+				}
 				
 			}
 		});

@@ -25,7 +25,7 @@ public class SignUpOrLoginTab implements EntryPoint {
         Tab tTab2 = new Tab("Sign Up"); 
 //        Img tImg2 = new Img("pieces/48/pawn_green.png", 48, 48);  
         SignUp sign = new SignUp();
-        tTab2.setPane(sign.buildForm());  
+        tTab2.setPane(sign.buildForm(topTabSet));  
   
         topTabSet.addTab(tTab1);  
         topTabSet.addTab(tTab2); 

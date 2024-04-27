@@ -1,6 +1,7 @@
 package com.mycompany.server;
 
 import com.mycompany.client.GreetingService;
+import com.mycompany.shared.User;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 /**
@@ -10,8 +11,9 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 public class GreetingServiceImpl extends RemoteServiceServlet implements
     GreetingService {
 
-  public String greetServer(String firstname) {
-	  System.out.print(firstname);
-    return "Hello " + firstname;
+  public String greetServer(String firstname, String lastname, String phoneNum, String email, String password, short age) {
+	  if(DBManager.addUser(new User(firstname, lastname, phoneNum, email, password, age)))
+		  return "ok";
+	  return "error";
   }
 }
