@@ -2,6 +2,7 @@ package com.mycompany.client;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.mycompany.shared.User;
 import com.google.gwt.core.client.EntryPoint;
 import com.smartgwt.client.util.SC;
 import com.smartgwt.client.widgets.form.DynamicForm;
@@ -112,12 +113,12 @@ public class SignUp implements EntryPoint {
 				}
 				else if (checkFields()) {
 //					 create account
-				greetingService.greetServer(firstname.getValueAsString().trim(),
+				greetingService.greetServer(new User(firstname.getValueAsString().trim(),
 						lastname.getValueAsString().trim(),
 						phoneNumber.getValueAsString().trim(),
 						email.getValueAsString().trim(),
 						password.getValueAsString().trim(),
-						Short.valueOf(age.getValueAsString().trim()),
+						age.getValueAsString().trim()),
 						new AsyncCallback<String>() {
 					@Override
 					public void onFailure(Throwable caught) {

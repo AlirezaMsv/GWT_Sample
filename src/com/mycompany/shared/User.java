@@ -17,13 +17,17 @@ public class User implements Serializable {
 	
 	public short age;
 	
-	public User(String firstname, String lastname, String phoneNum, String email, String password, short age) {
+	public User(String firstname, String lastname, String phoneNum, String email, String password, String age) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.phoneNum = phoneNum;
         this.email = email;
         this.password = password;
-        this.age = age;
+        this.age = Short.parseShort(age);
     }
+	
+	public User() {
+		// TODO Auto-generated constructor stub
+	}
 
 }
