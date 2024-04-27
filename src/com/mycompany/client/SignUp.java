@@ -1,6 +1,8 @@
 package com.mycompany.client;
 
-
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.core.client.EntryPoint;
 import com.smartgwt.client.util.SC;
 import com.smartgwt.client.widgets.form.DynamicForm;
@@ -15,10 +17,8 @@ import jsinterop.annotations.JsMethod;
 public class SignUp implements EntryPoint {
 	
 	DynamicForm form;
-//	private static final String EMAIL_REGEX =
-//            "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
-//
-//    private static final Pattern pattern = Pattern.compile(EMAIL_REGEX);
+	
+	private final GreetingServiceAsync greetingService = GWT.create(GreetingService.class);
 	
 	public DynamicForm buildForm() {
 		if (form == null) {
@@ -86,20 +86,31 @@ public class SignUp implements EntryPoint {
 			
 			@Override
 			public void onClick(ClickEvent event) {
-				
-				if (empty(firstname.getValueAsString()) ||
-						empty(lastname.getValueAsString()) ||
-						empty(email.getValueAsString()) ||
-						empty(password.getValueAsString()) ||
-						empty(repeat.getValueAsString()) ||
-						empty(age.getValueAsString()) ||
-						empty(phoneNumber.getValueAsString())) {
-					SC.say("Error", "Please fill all fields!");
-				}
-				else if (checkFields()) {
+				System.out.println(greetingService.getClass().toString());
+//				if (empty(firstname.getValueAsString()) ||
+//						empty(lastname.getValueAsString()) ||
+//						empty(email.getValueAsString()) ||
+//						empty(password.getValueAsString()) ||
+//						empty(repeat.getValueAsString()) ||
+//						empty(age.getValueAsString()) ||
+//						empty(phoneNumber.getValueAsString())) {
+//					SC.say("Error", "Please fill all fields!");
+//				}
+//				else if (checkFields()) {
 					// create account
-					SC.say("Well Done");
-				}
+				greetingService.greetServer(firstname.getValueAsString(), new AsyncCallback<String>() {
+					@Override
+					public void onFailure(Throwable caught) {
+						SC.say("Error", "sth went wrong");
+					}
+
+					@Override
+					public void onSuccess(String result) {
+						Window.alert(result);
+						SC.say("Well Done");
+					}
+				  });
+//				}
 				
 			}
 		});
