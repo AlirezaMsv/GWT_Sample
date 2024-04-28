@@ -1,5 +1,6 @@
 package com.mycompany.client;
 
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.smartgwt.client.types.Side;
 import com.smartgwt.client.widgets.layout.VLayout;
@@ -9,6 +10,7 @@ import com.smartgwt.client.widgets.tab.TabSet;
 public class SignUpOrLoginTab{
 	
 	private static TabSet topTabSet;
+	private static boolean visible = false;
 
 	private static Widget build() {
 		
@@ -40,11 +42,22 @@ public class SignUpOrLoginTab{
         
 	}
 	
-	public static Widget getWidget() {
+	private static Widget getWidget() {
 		if (topTabSet == null)
 			build();
 		return topTabSet;
 	}
 	
+	public static void remove() {
+		if (visible) {
+			visible = false;
+			RootPanel.get("loginTab").remove(0);
+		}
+	}
+	
+	public static void show() {
+		visible = true;
+		RootPanel.get("loginTab").add(getWidget());
+	}
 	
 }

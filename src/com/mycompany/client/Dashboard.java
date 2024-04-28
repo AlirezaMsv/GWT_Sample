@@ -10,27 +10,40 @@ import com.google.gwt.user.client.Cookies;
 
 public class Dashboard {
 	
-	private static Button btn;
+	private static Button logout_btn;
+	private static boolean visible = false;
 
-	private static Widget build() {
-		btn = new Button("Logout");
-		btn.addMouseDownHandler(new MouseDownHandler() {
+	private static Widget buildLogoutBtn() {
+		logout_btn = new Button("Logout");
+		logout_btn.addMouseDownHandler(new MouseDownHandler() {
 			
 			@Override
 			public void onMouseDown(MouseDownEvent event) {
 				// logout
 				Cookies.removeCookie("isLoggedIn");
 				SC.say("logged out");
-				RootPanel.get("logout_btn").remove(0);
-				RootPanel.get("loginTab").add(SignUpOrLoginTab.getWidget());
+				remove();
+				SignUpOrLoginTab.show();
 			}
 		});
-		return btn;
+		return logout_btn;
 	}
 	
-	public static Widget getWidget() {
-		if (btn == null)
-			build();
-		return btn;
+	private static Widget getWidget() {
+		if (logout_btn == null)
+			buildLogoutBtn();
+		return logout_btn;
+	}
+	
+	public static void remove() {
+		if (visible) {
+			visible = false;
+			RootPanel.get("logout_btn").remove(0);
+		}
+	}
+	
+	public static void show() {
+		visible = true;
+		RootPanel.get("logout_btn").add(getWidget());
 	}
 }

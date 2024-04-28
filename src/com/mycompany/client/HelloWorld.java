@@ -10,12 +10,12 @@ public class HelloWorld implements EntryPoint {
 	
 	public void onModuleLoad() {
 		if("true".equalsIgnoreCase(Cookies.getCookie("isLoggedIn"))) {
-			RootPanel.get("logout_btn").add(Dashboard.getWidget());
-			RootPanel.get("loginTab").remove(0);
+			SignUpOrLoginTab.remove();
+			Dashboard.show();
 		}
 		else {
-			RootPanel.get("loginTab").add(SignUpOrLoginTab.getWidget());
-			RootPanel.get("logout_btn").remove(0);
+			Dashboard.remove();
+			SignUpOrLoginTab.show();
 		}
 	}
 }

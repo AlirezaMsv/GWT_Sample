@@ -69,8 +69,8 @@ public class Login {
 					    public void onSuccess(String result) {
 					        // Handle successful login
 					    	SC.say("Welcome", "logged in");
-							RootPanel.get("loginTab").remove(0);
-							RootPanel.get("logout_btn").add(Dashboard.getWidget());
+							SignUpOrLoginTab.remove();
+							Dashboard.show();
 					    }
 
 					    @Override
