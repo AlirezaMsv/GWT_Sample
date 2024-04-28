@@ -16,7 +16,7 @@ import com.smartgwt.client.widgets.tab.TabSet;
 
 import jsinterop.annotations.JsMethod;
 
-public class SignUp implements EntryPoint {
+public class SignUp {
 	
 	DynamicForm form;
 	TabSet topTabSet;
@@ -27,7 +27,7 @@ public class SignUp implements EntryPoint {
 		if (form == null) {
 			form =  new DynamicForm(); 
 			this.topTabSet = topTabSet;
-			onModuleLoad();
+			build();
 		}
 		return form;
 	}
@@ -51,8 +51,7 @@ public class SignUp implements EntryPoint {
 		phoneNumber.setValue("");
 	}
 
-	@Override
-	public void onModuleLoad() {
+	public void build() {
         form.setWidth(300);  
           
         firstname = new TextItem();  

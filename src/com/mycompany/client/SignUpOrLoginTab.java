@@ -1,18 +1,19 @@
 package com.mycompany.client;
 
-import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.smartgwt.client.types.Side;
 import com.smartgwt.client.widgets.layout.VLayout;
 import com.smartgwt.client.widgets.tab.Tab;
 import com.smartgwt.client.widgets.tab.TabSet;
 
-public class SignUpOrLoginTab implements EntryPoint {
+public class SignUpOrLoginTab{
+	
+	private static TabSet topTabSet;
 
-	@Override
-	public void onModuleLoad() {
-
-        final TabSet topTabSet = new TabSet();  
+	private static Widget build() {
+		
+		topTabSet = new TabSet();
+		
         topTabSet.setTabBarPosition(Side.TOP);  
         topTabSet.setWidth(350);  
         topTabSet.setHeight(300);  
@@ -35,8 +36,15 @@ public class SignUpOrLoginTab implements EntryPoint {
         vLayout.addMember(topTabSet); 
         vLayout.setHeight("*");  
   
-        RootPanel.get("loginTab").add(vLayout);
+        return vLayout;
         
 	}
-
+	
+	public static Widget getWidget() {
+		if (topTabSet == null)
+			build();
+		return topTabSet;
+	}
+	
+	
 }

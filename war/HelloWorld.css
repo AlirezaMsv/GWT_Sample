@@ -3,3 +3,9 @@
 	left: 40%;
 	top: 20%;
 }
+
+.logout_btn{
+	position: static;
+	left: 10%;
+	top: 10%;
+}

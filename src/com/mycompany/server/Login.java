@@ -1,5 +1,6 @@
 package com.mycompany.server;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,6 +23,8 @@ public class Login extends HttpServlet {
         
         // Send response back to the client
         if (isValidUser) {
+        	response.addCookie(new Cookie("isLoggedIn", "true"));
+        	request.getSession().setAttribute("loggedInUsename", username);
             response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().println("Login successful");
         } else {

@@ -1,8 +1,9 @@
 package com.mycompany.client;
 
-import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.http.client.*;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.smartgwt.client.util.SC;
 import com.smartgwt.client.widgets.form.DynamicForm;
 import com.smartgwt.client.widgets.form.fields.ButtonItem;
@@ -13,7 +14,7 @@ import com.smartgwt.client.widgets.form.fields.events.ClickHandler;
 
 import jsinterop.annotations.JsMethod;
 
-public class Login implements EntryPoint {
+public class Login {
 
 	DynamicForm form;
 //	private static final String EMAIL_REGEX =
@@ -24,7 +25,7 @@ public class Login implements EntryPoint {
 	public DynamicForm buildForm() {
 		if (form == null) {
 			form =  new DynamicForm(); 
-			onModuleLoad();
+			build();
 		}
 		return form;
 	}
@@ -32,8 +33,7 @@ public class Login implements EntryPoint {
 	PasswordItem password;
 	ButtonItem buttonItem;
 
-	@Override
-	public void onModuleLoad() {
+	public void build() {
         form.setWidth(300);  
         
 
@@ -69,6 +69,8 @@ public class Login implements EntryPoint {
 					    public void onSuccess(String result) {
 					        // Handle successful login
 					    	SC.say("Welcome", "logged in");
+							RootPanel.get("loginTab").remove(0);
+							RootPanel.get("logout_btn").add(Dashboard.getWidget());
 					    }
 
 					    @Override
