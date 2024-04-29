@@ -2,6 +2,9 @@ package com.mycompany.server;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -23,7 +26,7 @@ public class DBManager {
         return hashedPassword;
     }
     
-    public static boolean verifyPassword(String password, String hashedPassword) {
+    private static boolean verifyPassword(String password, String hashedPassword) {
         return BCrypt.checkpw(password, hashedPassword);
     }
 
@@ -57,35 +60,7 @@ public class DBManager {
             return false;
         }
     }
-    
 
-//    public static boolean validateUser(String username, String password) {
-//    	try {
-//            // Load the MySQL JDBC driver
-//            Class.forName("com.mysql.cj.jdbc.Driver");
-//
-//            // Connect to the database
-//            try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
-//                // Prepare SQL statement
-//                String sql = "SELECT id FROM usersinfo WHERE email = ? AND password = ?";
-////                String sql = "SELECT * FROM usersinfo WHERE email = ? AND password = ?";
-//                try (PreparedStatement statement = conn.prepareStatement(sql)) {
-////                	password = hashPassword(password);
-////                	Window.alert(password);
-//                    statement.setString(1, username);
-//                    statement.setString(2, hashPassword(password));
-//
-//                    // Execute query
-//                    try (ResultSet resultSet = statement.executeQuery()) {
-//                    	return resultSet.next();
-//                    }
-//                }
-//            }
-//        } catch (ClassNotFoundException | SQLException e) {
-//            e.printStackTrace();
-//            return false;
-//        }
-//    }
     
     public static boolean addUser(User user) {
     	try {
@@ -115,6 +90,30 @@ public class DBManager {
         }
     }
 
-    
+    public static ArrayList<HashMap<String, String>> fetchUsers() {
+    	// SQL query to fetch all rows
+        String query = "SELECT * FROM usersinfo";
+        ArrayList<HashMap<String, String>> res = new ArrayList<HashMap<String,String>>();
+        
+        try (Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
 
+            // Iterate through the result set
+            while (rs.next()) {
+//                jsonObject.addProperty("firstname", rs.getString("firstname"));
+            	HashMap<String, String> row = new HashMap<String, String>();
+            	row.put("firstname", rs.getString("firstname"));
+            	row.put("lastname", rs.getString("lastname"));
+            	row.put("age", rs.getString("age"));
+            	row.put("email", rs.getString("email"));
+            	row.put("phoneNum", rs.getString("phoneNum"));
+            	res.add(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return res;
+    }
 }

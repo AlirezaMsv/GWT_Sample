@@ -28,5 +28,15 @@
     <servlet-name>greetServlet</servlet-name>
     <url-pattern>/helloworld/greet</url-pattern>
   </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>usersServlet</servlet-name>
+    <servlet-class>com.mycompany.server.UsersServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>usersServlet</servlet-name>
+    <url-pattern>/helloworld/users</url-pattern>
+  </servlet-mapping>
 
 </web-app>

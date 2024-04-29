@@ -3,7 +3,6 @@ package com.mycompany.client;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.mycompany.shared.User;
-import com.google.gwt.core.client.EntryPoint;
 import com.smartgwt.client.util.SC;
 import com.smartgwt.client.widgets.form.DynamicForm;
 import com.smartgwt.client.widgets.form.fields.ButtonItem;
@@ -100,7 +99,6 @@ public class SignUp {
 			
 			@Override
 			public void onClick(ClickEvent event) {
-				System.out.println(greetingService.getClass().toString());
 				if (empty(firstname.getValueAsString()) ||
 						empty(lastname.getValueAsString()) ||
 						empty(email.getValueAsString()) ||
@@ -118,7 +116,8 @@ public class SignUp {
 						email.getValueAsString().trim(),
 						password.getValueAsString().trim(),
 						age.getValueAsString().trim()),
-						new AsyncCallback<String>() {
+						
+					new AsyncCallback<String>() {
 					@Override
 					public void onFailure(Throwable caught) {
 						SC.say("Error", "sth went wrong");
