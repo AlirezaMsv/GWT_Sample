@@ -13,8 +13,7 @@ public class UsersServiceImpl extends RemoteServiceServlet implements UsersServi
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public ArrayList<HashMap<String, String>> fetchusers(){
-		return DBManager.fetchUsers();
+	public ArrayList<HashMap<String, String>> fetchusers(Integer start, Integer end){
+		return DBManager.fetchUsers(start, end);
 	}
-
 }

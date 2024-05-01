@@ -90,18 +90,24 @@ public class DBManager {
         }
     }
 
-    public static ArrayList<HashMap<String, String>> fetchUsers() {
+    public static ArrayList<HashMap<String, String>> fetchUsers(Integer start, Integer end) {
     	// SQL query to fetch all rows
-        String query = "SELECT * FROM usersinfo";
+    	String query = "SELECT * FROM usersinfo LIMIT " + start + " , " + (end - start);
         ArrayList<HashMap<String, String>> res = new ArrayList<HashMap<String,String>>();
         
-        try (Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-             Statement stmt = con.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-
+        try (Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) 
+        {
+        	Statement stmt = con.createStatement();
+            
+        	ResultSet n = stmt.executeQuery("SELECT count(*) AS n from usersinfo");
+        	if (n.next()){
+        		HashMap<String, String> row = new HashMap<String, String>();
+        		row.put("n", n.getInt("n")+"");
+        		res.add(row);
+        	}
+            ResultSet rs = stmt.executeQuery(query);
             // Iterate through the result set
             while (rs.next()) {
-//                jsonObject.addProperty("firstname", rs.getString("firstname"));
             	HashMap<String, String> row = new HashMap<String, String>();
             	row.put("firstname", rs.getString("firstname"));
             	row.put("lastname", rs.getString("lastname"));
@@ -116,4 +122,5 @@ public class DBManager {
         
         return res;
     }
+
 }

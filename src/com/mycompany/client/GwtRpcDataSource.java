@@ -1,19 +1,10 @@
-package com.holisoft.holiframework.client.data.hfw;
+package com.mycompany.client;
 
-
-import com.holisoft.holiframework.shared.data.hfw.SerializableResultSet;
 import com.smartgwt.client.data.DSRequest;
 import com.smartgwt.client.data.DSResponse;
 import com.smartgwt.client.data.DataSource;
-import com.smartgwt.client.data.Record;
-import com.smartgwt.client.rpc.HandleErrorCallback;
-import com.smartgwt.client.rpc.RPCManager;
-import com.smartgwt.client.rpc.RPCResponse;
 import com.smartgwt.client.types.DSDataFormat;
 import com.smartgwt.client.types.DSProtocol;
-import com.smartgwt.client.types.FieldType;
-import com.smartgwt.client.util.BooleanCallback;
-import com.smartgwt.client.util.ValueCallback;
 
 /**
  * Data source with ability to communicate with server by GWT RPC.<p/>
@@ -50,19 +41,6 @@ import com.smartgwt.client.util.ValueCallback;
  */
 public abstract class GwtRpcDataSource
     extends DataSource {
-	
-	public static enum DSEvent {
-		Fetch,
-		FetchCompleted,
-		Add,
-		AddCompleted,
-		Update,
-		UpdateCompleted,
-		Delete,
-		DeleteCompleted,
-	};
-	
-	protected ValueCallback eventsCallback;
 
     /**
      * Creates new data source which communicates with server by GWT RPC.
@@ -84,94 +62,31 @@ public abstract class GwtRpcDataSource
      * @return <code>Object</code> data from original request.
      */
     @Override
-    protected Object transformRequest (final DSRequest request) {
+    protected Object transformRequest (DSRequest request) {
         String requestId = request.getRequestId ();
         DSResponse response = new DSResponse ();
-        
         response.setAttribute ("clientContext", request.getAttributeAsObject ("clientContext"));
         // Asume success
         response.setStatus (0);
         switch (request.getOperationType ()) {
             case FETCH:
                 executeFetch (requestId, request, response);
-                onFetchCompleted(requestId, request, response);
                 break;
             case ADD:
-                if(beforeAdd(requestId, request, response))
-                {
-                	doAdd(requestId, request, response);
-                }
+                executeAdd (requestId, request, response);
                 break;
             case UPDATE:
-                if(beforeUpdate(requestId, request, response))
-                {
-                	doUpdate(requestId, request, response);
-                }
+                executeUpdate (requestId, request, response);
                 break;
             case REMOVE:
                 executeRemove (requestId, request, response);
-                onDeleteCompleted(requestId, request, response);
                 break;
-            case CUSTOM:
-            	processResponse(requestId, new DSResponse());
-            	break;
             default:
                 // Operation not implemented.
                 break;
         }
         return request.getData ();
     }
-    
-    public boolean beforeAdd(final String requestId, final DSRequest request, final DSResponse response)
-    {
-    	if(preAddCheck == null)
-    	{
-    		return true;
-    	}
-    	
-    	preAddCheck.check(request, b -> {
-    		if(b)
-    		{
-    			doAdd(requestId, request, response);
-    		}
-    	});
-    	
-    	return false;
-    }
-    
-    private void doAdd(final String requestId, final DSRequest request, final DSResponse response)
-    {
-    	executeAdd (requestId, request, response);
-        onAddCompleted(requestId, request, response);
-    }
-    
-    public boolean beforeUpdate(final String requestId, final DSRequest request, final DSResponse response)
-    {
-    	if(preUpdateCheck == null)
-    	{
-    		return true;
-    	}
-
-    	preUpdateCheck.check(request, b -> {
-    		if(b)
-    		{
-    			doUpdate(requestId, request, response);
-    		}
-    	});
-    	
-    	return false;
-    }
-    
-    private void doUpdate(final String requestId, final DSRequest request, final DSResponse response)
-    {
-    	executeUpdate (requestId, request, response);
-        onUpdateCompleted(requestId, request, response);
-    }
-
-    protected void onFetchCompleted(final String requestId, final DSRequest request, final DSResponse response){}
-    protected void onAddCompleted(final String requestId, final DSRequest request, final DSResponse response){}
-    protected void onUpdateCompleted(final String requestId, final DSRequest request, final DSResponse response){}
-    protected void onDeleteCompleted(final String requestId, final DSRequest request, final DSResponse response){}
 
     /**
      * Executed on <code>FETCH</code> operation. <code>processResponse (requestId, response)</code>
@@ -183,7 +98,7 @@ public abstract class GwtRpcDataSource
      *      successful execution of this method. <code>setStatus (&lt;0)</code> should be called
      *      on failure.
      */
-    protected abstract void executeFetch (final String requestId, final DSRequest request, final DSResponse response);
+    protected abstract void executeFetch (String requestId, DSRequest request, DSResponse response);
 
     /**
      * Executed on <code>ADD</code> operation. <code>processResponse (requestId, response)</code>
@@ -196,7 +111,7 @@ public abstract class GwtRpcDataSource
      *      successful execution of this method. Array should contain single element representing
      *      added row. <code>setStatus (&lt;0)</code> should be called on failure.
      */
-    protected abstract void executeAdd (final String requestId, final DSRequest request, final DSResponse response);
+    protected abstract void executeAdd (String requestId, DSRequest request, DSResponse response);
 
     /**
      * Executed on <code>UPDATE</code> operation. <code>processResponse (requestId, response)</code>
@@ -209,7 +124,7 @@ public abstract class GwtRpcDataSource
      *      successful execution of this method. Array should contain single element representing
      *      updated row. <code>setStatus (&lt;0)</code> should be called on failure.
      */
-    protected abstract void executeUpdate (final String requestId, final DSRequest request, final DSResponse response);
+    protected abstract void executeUpdate (String requestId, DSRequest request, DSResponse response);
 
     /**
      * Executed on <code>REMOVE</code> operation. <code>processResponse (requestId, response)</code>
@@ -222,94 +137,6 @@ public abstract class GwtRpcDataSource
      *      successful execution of this method. Array should contain single element representing
      *      removed row. <code>setStatus (&lt;0)</code> should be called on failure.
      */
-    protected abstract void executeRemove (final String requestId, final DSRequest request, final DSResponse response);
-    
-    static{
-    	RPCManager.setHandleErrorCallback(new HandleErrorCallback() {
-			
-			@Override
-			public void handleError(DSResponse response, DSRequest request) {
-				//SC.say("Hi");
-			}
-		});
-    }
-    
-    protected void operationFailed(final String requestId, final DSResponse response){
-    	try{
-    		response.setData(new Record[]{});
-			response.setStatus(RPCResponse.STATUS_FAILURE);
-			processResponse(requestId, response);
-    	}catch(Exception ex){}
-    }
-    
-    private String dataSourceFieldsPrefix = "";
-    private boolean clearDataSourceFieldsPrefixAfterCopy;
-    public void setDataSourceFieldsPrefix(String prefix, boolean clearAfterCopy){
-    	this.dataSourceFieldsPrefix = prefix;
-    	this.clearDataSourceFieldsPrefixAfterCopy = clearAfterCopy;
-    }
-    
-    public String getDataSourceFieldsPrefix(){
-    	return this.dataSourceFieldsPrefix;
-    }
-    
-    protected void copyValues(final SerializableResultSet from, final Record to) {
-    	
-		String[] fields = this.getFieldNames();
-		/*if(fields == null || fields.length==0){
-			fields = from.getColumnsOfCurrentRow();
-		}*/
-		for(String field : fields){
-			try{
-				if(!from.hasColumn(dataSourceFieldsPrefix + field)){
-					continue;
-				}
-				FieldType ftype = getField(field).getType();
-				if(ftype==FieldType.INTEGER){
-					to.setAttribute(dataSourceFieldsPrefix + field, from.getInt(field));
-				}else if(ftype==FieldType.FLOAT){
-					to.setAttribute(dataSourceFieldsPrefix + field, from.getFloat(field));
-				}else if(ftype==FieldType.BOOLEAN){
-					String tmp = from.getString(field);
-					to.setAttribute(dataSourceFieldsPrefix + field, "true".equalsIgnoreCase(tmp) || "1".equals(tmp));
-				}else if(ftype==FieldType.DATETIME || ftype==FieldType.DATE){
-					to.setAttribute(dataSourceFieldsPrefix + field, from.getPersianPrintableDatetime(field));
-				}else{
-					to.setAttribute(dataSourceFieldsPrefix + field, from.getObject(field));
-				}
-			}catch(Exception ex){
-				
-			}
-		}
-		if(this.clearDataSourceFieldsPrefixAfterCopy){
-			this.dataSourceFieldsPrefix = "";
-		}
-	
-    }
-    
-    @FunctionalInterface
-    public static interface PreOperation{
-    	
-    	void check(DSRequest dsRequest, BooleanCallback onFinish);
-    }
-    
-    private PreOperation preAddCheck;
-    private PreOperation preUpdateCheck;
-
-	public PreOperation getPreAddCheck() {
-		return preAddCheck;
-	}
-
-	public PreOperation getPreUpdateCheck() {
-		return preUpdateCheck;
-	}
-
-	public void setPreAddCheck(PreOperation preAddCheck) {
-		this.preAddCheck = preAddCheck;
-	}
-
-	public void setPreUpdateCheck(PreOperation preUpdateCheck) {
-		this.preUpdateCheck = preUpdateCheck;
-	}
+    protected abstract void executeRemove (String requestId, DSRequest request, DSResponse response);
 
 }

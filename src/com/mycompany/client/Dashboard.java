@@ -9,21 +9,10 @@ import com.smartgwt.client.widgets.events.MouseDownHandler;
 import com.smartgwt.client.widgets.form.DynamicForm;
 import com.smartgwt.client.widgets.form.fields.TextAreaItem;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Cookies;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.smartgwt.client.data.DataSource;
-import com.smartgwt.client.data.DataSourceField;
-import com.smartgwt.client.data.Record;
-import com.smartgwt.client.rpc.RPCManager;
 import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.types.FetchMode;
-import com.smartgwt.client.types.FieldType;
 import com.smartgwt.client.types.ListGridFieldType;  
-import com.smartgwt.client.types.PromptStyle;
 import com.smartgwt.client.types.Side;
 import com.smartgwt.client.widgets.grid.CellFormatter;  
 import com.smartgwt.client.widgets.grid.ListGrid;  
@@ -36,12 +25,10 @@ public class Dashboard {
 	
 	private static Button logout_btn;
 	private static TextAreaItem textAreaItem;
-	private static ListGridRecord[] usersList = new ListGridRecord[1];
-//	private static DataSource usersDataSource;
-	private static ListGrid usersGrid;
+//	private static ListGridRecord[] usersList = new ListGridRecord[1];
+	private static ListGrid usersGrid = new ListGrid();
 	private static TabSet topTabSet;
 	private static boolean visible = false;
-	private final static UsersServiceAsync usersService = GWT.create(UsersService.class);
 
 	private static Widget buildLogoutBtn() {
 		logout_btn = new Button("Logout");
@@ -72,6 +59,7 @@ public class Dashboard {
         topTabSet.setWidth("50%");  
         topTabSet.setHeight("80%");  
   
+        // text Area
         Tab tTab1 = new Tab("TextArea");
         
         DynamicForm form = new DynamicForm();  
@@ -84,17 +72,18 @@ public class Dashboard {
         textAreaItem.setHeight("100%");  
         form.setFields(textAreaItem);
         
-        tTab1.setPane(form);  
-  
-        Tab tTab2 = new Tab("Grid"); 
-        RPCManager.setPromptStyle(PromptStyle.CURSOR);
+        tTab1.setPane(form); 
         
+        // Grid
+        Tab tTab2 = new Tab("Grid"); 
+        
+        // Columns
 	      ListGridField rowNum = new ListGridField("itemNum", "Item No.");  
 	      rowNum.setAlign(Alignment.CENTER);
 	      rowNum.setWidth(80);  
 	      rowNum.setCellFormatter(new CellFormatter() {  
 	          public String format(Object value, ListGridRecord record, int rowNum, int colNum) {  
-	              return rowNum+1 +"";  
+	              return rowNum+1 + "";  
 	          }  
 	      });  
 	
@@ -111,12 +100,8 @@ public class Dashboard {
 	      ListGridField email = new ListGridField("email", "Email");   
 	      email.setAlign(Alignment.CENTER);
 
-	      usersGrid = new ListGrid();  
 	      usersGrid.setWidth100();
 	      usersGrid.setHeight100();
-	      usersGrid.setAutoFetchData(true);  
-	      usersGrid.setDataPageSize(10);
-	      usersGrid.setDataFetchMode(FetchMode.PAGED);
 	
 	      usersGrid.setFields(rowNum, firstname, lastname, age, phoneNum, email);  
 	
@@ -140,55 +125,14 @@ public class Dashboard {
 	public static void show() {
 		visible = true;
 		RootPanel.get("logout_btn").add(getButton());
+		// set grid
+//		usersGrid.setpage
+		String[] fieldNames = {"firstname", "lastname", "age", "phoneNum", "email"};
+		usersGrid.setDataSource(new UsersDS(value -> {
+			textAreaItem.setValue(value);
+		}, fieldNames));
+        usersGrid.setAutoFetchData(true); 
+        usersGrid.setDataFetchMode(FetchMode.PAGED);
 		RootPanel.get("grid").add(getGrid());
-		usersService.fetchusers(new AsyncCallback<ArrayList<HashMap<String, String>>>() {			
-			@Override
-			public void onSuccess(ArrayList<HashMap<String, String>> result) {
-				//grid
-				setData(result);
-				// text area
-				StringBuilder text = new StringBuilder();
-				for (int i = 0 ; i < result.size(); i++) {
-					text.append("{\n").append("\tfirstname: ").append(result.get(i).get("firstname"));
-					text.append(",\n");
-					text.append("\tlastname: ").append(result.get(i).get("lastname"));
-					text.append(",\n");
-					text.append("\tage: ").append(result.get(i).get("age"));
-					text.append(",\n");
-					text.append("\temail: ").append(result.get(i).get("email"));
-					text.append(",\n");
-					text.append("\tphoneNum: ").append(result.get(i).get("phoneNum"));
-					text.append("\n");
-					text.append("}\n");
-				}
-				textAreaItem.setValue(text);
-			}
-			
-			@Override
-			public void onFailure(Throwable caught) {
-				// TODO Auto-generated method stub
-				SC.say("Error!");
-			}
-		});
-	}
-
-	private static void setData(ArrayList<HashMap<String, String>> result) {
-//		usersDataSource = new DataSource();
-//		for (String key : result.get(0).keySet()) {
-//			usersDataSource.addField(new DataSourceField(key, FieldType.TEXT));
-//		}
-		for (int i = 0; i < result.size(); i++) {
-			ListGridRecord record = new ListGridRecord();
-			HashMap<String, String> user = result.get(i);
-			record.setAttribute("firstname", user.get("firstname"));
-			record.setAttribute("lastname", user.get("lastname"));
-			record.setAttribute("age", user.get("age"));
-			record.setAttribute("phoneNum", user.get("phoneNum"));
-			record.setAttribute("email", user.get("email"));
-			usersList[i] = record;
-//			usersDataSource.addData(new Record(result.get(i)));
-		}
-		usersGrid.setData(usersList);
-//		usersGrid.setDataSource(usersDataSource);
 	}
 }
