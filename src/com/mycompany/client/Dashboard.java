@@ -2,6 +2,7 @@ package com.mycompany.client;
 
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.mycompany.client.UsersDS.Type;
 import com.smartgwt.client.util.SC;
 import com.smartgwt.client.widgets.Button;
 import com.smartgwt.client.widgets.IButton;
@@ -13,8 +14,6 @@ import com.smartgwt.client.widgets.form.DynamicForm;
 import com.smartgwt.client.widgets.form.fields.IntegerItem;
 import com.smartgwt.client.widgets.form.fields.TextAreaItem;
 import com.smartgwt.client.widgets.form.fields.TextItem;
-import com.google.gwt.event.dom.client.DoubleClickEvent;
-import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.user.client.Cookies;
 import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.types.DSOperationType;
@@ -36,11 +35,11 @@ public class Dashboard {
 	
 	private static Button logout_btn;
 	private static TextAreaItem textAreaItem;
-//	private static ListGridRecord[] usersList = new ListGridRecord[1];
 	private static ListGrid usersGrid = new ListGrid();
 	private static TabSet topTabSet;
 	private static boolean visible = false;
 
+	// form items
 	private static TextItem txtIDEdit;
 	private static TextItem txtFirstnameEdit;
 	private static TextItem txtLastnameEdit;
@@ -111,7 +110,7 @@ public class Dashboard {
 	      rowNum.setCellFormatter(new CellFormatter() {  
 	          public String format(Object value, ListGridRecord record, int rowNum, int colNum) {  
 	              return rowNum+1 + "";  
-	          }  
+	          }
 	      });
 	      
 	      
@@ -174,6 +173,9 @@ public class Dashboard {
 				// TODO Auto-generated method stub
 				topTabSet.selectTab(0);
 				topTabSet.disableTab(2);
+				//reset form from datasource
+				
+				//reset manually
 				txtIDEdit.setValue("");
 				txtFirstnameEdit.setValue("");
 				txtLastnameEdit.setValue("");
@@ -218,6 +220,9 @@ public class Dashboard {
 				@Override
 				public void onClick(ClickEvent event) {
 					// TODO Auto-generated method stub
+					// reset from datasource
+					
+					//reset form manually
 					topTabSet.selectTab(0);
 					txtFirstnameCreate.setValue("");
 					txtLastnameCreate.setValue("");
@@ -251,12 +256,18 @@ public class Dashboard {
 				// TODO Auto-generated method stub
 				topTabSet.enableTab(2);
 				ListGridRecord user = event.getRecord();
-				txtIDEdit.setValue(user.getAttribute("id"));
-				txtFirstnameEdit.setValue(user.getAttribute("firstname"));
-				txtLastnameEdit.setValue(user.getAttribute("lastname"));
-				txtAgeEdit.setValue(user.getAttribute("age"));
-				txtPhoneNumEdit.setValue(user.getAttribute("phoneNum"));
-				txtEmailEdit.setValue(user.getAttribute("email"));
+				// create datasource
+				String[] fieldNames = {"id", "firstname", "lastname", "age", "phoneNum", "email"};
+				editForm.setDataSource(new UsersDS(fieldNames, Type.LIST));
+				editForm.setSaveOperationType(DSOperationType.FETCH);
+				editForm.saveData();
+				//
+//				txtIDEdit.setValue(user.getAttribute("id"));
+//				txtFirstnameEdit.setValue(user.getAttribute("firstname"));
+//				txtLastnameEdit.setValue(user.getAttribute("lastname"));
+//				txtAgeEdit.setValue(user.getAttribute("age"));
+//				txtPhoneNumEdit.setValue(user.getAttribute("phoneNum"));
+//				txtEmailEdit.setValue(user.getAttribute("email"));
 				topTabSet.selectTab(2);
 			}
 		});
@@ -279,9 +290,7 @@ public class Dashboard {
 		// set grid
 //		usersGrid.setpage
 		String[] fieldNames = {"id", "firstname", "lastname", "age", "phoneNum", "email"};
-		usersGrid.setDataSource(new UsersDS(value -> {
-			textAreaItem.setValue(value);
-		}, fieldNames));
+		usersGrid.setDataSource(new UsersDS(fieldNames, Type.GRID));
         usersGrid.setAutoFetchData(true); 
         usersGrid.setDataFetchMode(FetchMode.PAGED);
 		RootPanel.get("grid").add(getGrid());

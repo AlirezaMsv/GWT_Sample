@@ -124,4 +124,8 @@ public class DBManager {
         return res;
     }
 
+    
+    public static ArrayList<HashMap<String, String>> fetchUsersDetails(){
+    	return null;
+    }
 }
