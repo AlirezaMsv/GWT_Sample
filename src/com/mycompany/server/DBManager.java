@@ -109,6 +109,7 @@ public class DBManager {
             // Iterate through the result set
             while (rs.next()) {
             	HashMap<String, String> row = new HashMap<String, String>();
+            	row.put("id", rs.getString("id"));
             	row.put("firstname", rs.getString("firstname"));
             	row.put("lastname", rs.getString("lastname"));
             	row.put("age", rs.getString("age"));

@@ -10,6 +10,7 @@ import com.smartgwt.client.data.DSRequest;
 import com.smartgwt.client.data.DSResponse;
 import com.smartgwt.client.data.DataSourceField;
 import com.smartgwt.client.data.Record;
+import com.smartgwt.client.data.fields.DataSourceIntegerField;
 import com.smartgwt.client.rpc.RPCManager;
 import com.smartgwt.client.types.FieldType;
 import com.smartgwt.client.types.PromptStyle;
@@ -22,8 +23,7 @@ public class UsersDS extends GwtRpcDataSource {
 	// public final static UsersDS usersDataSource = new UsersDS();
 	public ValueCallback textAreaCB;
 	
-	public UsersDS(ValueCallback textAreaCB, String[] fields)
-	{
+	public UsersDS(ValueCallback textAreaCB, String[] fields){
 		for (String i : fields) {
 			this.addField(new DataSourceField(i, FieldType.TEXT, i));
 		}
