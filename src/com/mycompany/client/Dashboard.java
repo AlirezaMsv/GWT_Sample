@@ -20,7 +20,9 @@ import com.google.gwt.user.client.Cookies;
 import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.types.DSOperationType;
 import com.smartgwt.client.types.FetchMode;
-import com.smartgwt.client.types.ListGridFieldType;  
+import com.smartgwt.client.types.ListGridFieldType;
+import com.smartgwt.client.types.SelectionAppearance;
+import com.smartgwt.client.types.SelectionStyle;
 import com.smartgwt.client.types.Side;
 import com.smartgwt.client.widgets.grid.CellFormatter;  
 import com.smartgwt.client.widgets.grid.ListGrid;  
@@ -89,7 +91,7 @@ public class Dashboard {
 		topTabSet = new TabSet();
 		
         topTabSet.setTabBarPosition(Side.TOP);  
-        topTabSet.setWidth("25%");  
+        topTabSet.setWidth("30%");  
         topTabSet.setHeight("80%");  
   
         // text Area
@@ -123,9 +125,9 @@ public class Dashboard {
 	      
 	      ListGridField idfield = new ListGridField("id");  
 	      idfield.setHidden(true);
-	      ListGridField firstname = new ListGridField("firstname", "Firstname", 120);  
+	      ListGridField firstname = new ListGridField("firstname", "Firstname", 150);  
 	      firstname.setAlign(Alignment.CENTER);
-	      ListGridField lastname = new ListGridField("lastname", "Lastname", 120);   
+	      ListGridField lastname = new ListGridField("lastname", "Lastname", 150);   
 	      lastname.setAlign(Alignment.CENTER);
 	      ListGridField age = new ListGridField("age", "Age", 100);  
 	      age.setType(ListGridFieldType.INTEGER);  
@@ -154,14 +156,8 @@ public class Dashboard {
 	      usersGrid.setAutoFetchData(true); 
 	      usersGrid.setDataFetchMode(FetchMode.PAGED);
 	      usersGrid.setCanRemoveRecords(true);
-	      usersGrid.addRemoveRecordClickHandler(new RemoveRecordClickHandler() {
-				
-				@Override
-				public void onRemoveRecordClick(RemoveRecordClickEvent event) {
-					// TODO Auto-generated method stub
-					gridDS.setSelectedID(Integer.parseInt(usersGrid.getRecord(event.getRowNum()).getAttribute("id")));
-				}
-			});
+	      usersGrid.setSelectionType(SelectionStyle.SIMPLE);  
+	      usersGrid.setSelectionAppearance(SelectionAppearance.CHECKBOX);
 	      gridTab.setPane(usersGrid);  
 	  	      
 	      //edit tab

@@ -14,6 +14,7 @@ import com.smartgwt.client.data.Record;
 import com.smartgwt.client.rpc.RPCManager;
 import com.smartgwt.client.types.FieldType;
 import com.smartgwt.client.types.PromptStyle;
+import com.smartgwt.client.util.BooleanCallback;
 import com.smartgwt.client.util.SC;
 import com.smartgwt.client.util.ValueCallback;
 
@@ -27,10 +28,6 @@ public class UsersDS extends GwtRpcDataSource {
 	Type type;
 	
 	private int id;
-	
-	public void setSelectedID(int id) {
-		this.id = id;
-	}
 	
 	ValueCallback cb;
 	
@@ -195,23 +192,37 @@ public class UsersDS extends GwtRpcDataSource {
 	@Override
 	protected void executeRemove(String requestId, DSRequest request, DSResponse response) {
 		// TODO Auto-generated method stub
-		usersService.removeUser(id, new AsyncCallback<Boolean>() {
+		SC.confirm("Warning!", 
+				"Delete user: " + request.getAttributeAsRecord("data").getAttribute("firstname") + " " +
+						request.getAttributeAsRecord("data").getAttribute("lastname") + "?", 
+				new BooleanCallback() {
+					
+					@Override
+					public void execute(Boolean value) {
+						// TODO Auto-generated method stub
+						if (value) {
+							usersService.removeUser(Integer.parseInt(request.getAttributeAsRecord("data").getAttribute("id")),
+									
+									new AsyncCallback<Boolean>() {
 
-			@Override
-			public void onFailure(Throwable caught) {
-				// TODO Auto-generated method stub
-				SC.say("Error!", "Sth went wrong!");
-			}
+										@Override
+										public void onFailure(Throwable caught) {
+											// TODO Auto-generated method stub
+											SC.say("Error!", "Sth went wrong!");
+										}
 
-			@Override
-			public void onSuccess(Boolean result) {
-				// TODO Auto-generated method stub
-				if (result)
-					cb.execute("");
-				else
-					SC.say("Error", "Sth went wrong!");
-			}
-		});
+										@Override
+										public void onSuccess(Boolean result) {
+											// TODO Auto-generated method stub
+											if (result)
+												cb.execute("");
+											else
+												SC.say("Error", "Sth went wrong!");
+										}
+									});
+						}
+					}
+				});
 	}
 	 
 	
