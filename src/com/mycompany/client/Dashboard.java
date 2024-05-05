@@ -6,7 +6,9 @@ import com.mycompany.client.UsersDS.Type;
 import com.smartgwt.client.util.SC;
 import com.smartgwt.client.util.ValueCallback;
 import com.smartgwt.client.widgets.Button;
+import com.smartgwt.client.widgets.Canvas;
 import com.smartgwt.client.widgets.IButton;
+import com.smartgwt.client.widgets.Img;
 import com.smartgwt.client.widgets.events.ClickEvent;
 import com.smartgwt.client.widgets.events.ClickHandler;
 import com.smartgwt.client.widgets.events.MouseDownEvent;
@@ -16,6 +18,9 @@ import com.smartgwt.client.widgets.form.fields.IntegerItem;
 import com.smartgwt.client.widgets.form.fields.PasswordItem;
 import com.smartgwt.client.widgets.form.fields.TextAreaItem;
 import com.smartgwt.client.widgets.form.fields.TextItem;
+
+import java.util.ArrayList;
+
 import com.google.gwt.user.client.Cookies;
 import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.types.DSOperationType;
@@ -30,8 +35,8 @@ import com.smartgwt.client.widgets.grid.ListGridField;
 import com.smartgwt.client.widgets.grid.ListGridRecord;
 import com.smartgwt.client.widgets.grid.events.CellDoubleClickEvent;
 import com.smartgwt.client.widgets.grid.events.CellDoubleClickHandler;
-import com.smartgwt.client.widgets.grid.events.RemoveRecordClickEvent;
-import com.smartgwt.client.widgets.grid.events.RemoveRecordClickHandler;
+import com.smartgwt.client.widgets.grid.events.SelectionUpdatedEvent;
+import com.smartgwt.client.widgets.grid.events.SelectionUpdatedHandler;
 import com.smartgwt.client.widgets.layout.HLayout;
 import com.smartgwt.client.widgets.layout.VLayout;
 import com.smartgwt.client.widgets.tab.Tab;
@@ -64,6 +69,7 @@ public class Dashboard {
 	private static IButton editBtn;
 	private static IButton cancelBtnEdit;
 	private static IButton cancelBtnCreate;
+	private static Canvas trash;
 
 	private static Widget buildLogoutBtn() {
 		logout_btn = new Button("Logout");
@@ -85,6 +91,29 @@ public class Dashboard {
 		if (logout_btn == null)
 			buildLogoutBtn();
 		return logout_btn;
+	}
+	
+	private static Widget getTrash() {
+		trash = new Canvas();
+		Img trashIcon = new Img("http://127.0.0.1:8888/assets/img/delete.png", 40, 40);
+        trashIcon.setPrompt("Delete");
+        trash.addChild(trashIcon);
+        trash.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				// TODO Auto-generated method stub
+				ArrayList<String> arr = new ArrayList<String>();
+				for (ListGridRecord record : usersGrid.getSelectedRecords()) {
+					arr.add(record.getAttribute("id"));
+				}
+				UsersDS ds = (UsersDS)usersGrid.getDataSource();
+				ds.setSelectedIds(arr.toArray(new String[0]));
+				usersGrid.removeSelectedData();
+			}
+		});
+        trash.setVisible(false);
+		return trash;
 	}
 	
 	private static Widget getGrid() {
@@ -158,6 +187,20 @@ public class Dashboard {
 	      usersGrid.setCanRemoveRecords(true);
 	      usersGrid.setSelectionType(SelectionStyle.SIMPLE);  
 	      usersGrid.setSelectionAppearance(SelectionAppearance.CHECKBOX);
+	      usersGrid.addSelectionUpdatedHandler(new SelectionUpdatedHandler() {
+			
+			@Override
+			public void onSelectionUpdated(SelectionUpdatedEvent event) {
+				// TODO Auto-generated method stub
+				if (usersGrid.getSelectedRecords().length > 0) {
+					trash.setVisible(true);
+				}
+				else {
+					trash.setVisible(false);
+					gridDS.clearSelectedIds();
+				}
+			}
+		});
 	      gridTab.setPane(usersGrid);  
 	  	      
 	      //edit tab
@@ -356,6 +399,7 @@ public class Dashboard {
 			visible = false;
 			RootPanel.get("logout_btn").remove(0);
 			RootPanel.get("grid").remove(0);
+			RootPanel.get("trash").remove(0);
 		}
 	}
 	
@@ -380,6 +424,7 @@ public class Dashboard {
 		visible = true;
 		RootPanel.get("logout_btn").add(getButton());
 		RootPanel.get("grid").add(getGrid());
+		RootPanel.get("trash").add(getTrash());
 	}
 	
 	static boolean checkFields(String email, String age, String phone) {

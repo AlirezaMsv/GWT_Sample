@@ -29,6 +29,16 @@ public class UsersDS extends GwtRpcDataSource {
 	
 	private int id;
 	
+	private String[] selectedIds = null;
+	
+	public void setSelectedIds(String[] arr) {
+		this.selectedIds = arr;
+	}
+	
+	public void clearSelectedIds() {
+		this.selectedIds = null;
+	}
+	
 	ValueCallback cb;
 	
 	private final static UsersServiceAsync usersService = GWT.create(UsersService.class);
@@ -192,7 +202,8 @@ public class UsersDS extends GwtRpcDataSource {
 	@Override
 	protected void executeRemove(String requestId, DSRequest request, DSResponse response) {
 		// TODO Auto-generated method stub
-		SC.confirm("Warning!", 
+		if (selectedIds == null) {
+			SC.confirm("Warning!", 
 				"Delete user: " + request.getAttributeAsRecord("data").getAttribute("firstname") + " " +
 						request.getAttributeAsRecord("data").getAttribute("lastname") + "?", 
 				new BooleanCallback() {
@@ -204,13 +215,13 @@ public class UsersDS extends GwtRpcDataSource {
 							usersService.removeUser(Integer.parseInt(request.getAttributeAsRecord("data").getAttribute("id")),
 									
 									new AsyncCallback<Boolean>() {
-
+		
 										@Override
 										public void onFailure(Throwable caught) {
 											// TODO Auto-generated method stub
 											SC.say("Error!", "Sth went wrong!");
 										}
-
+		
 										@Override
 										public void onSuccess(Boolean result) {
 											// TODO Auto-generated method stub
@@ -222,7 +233,11 @@ public class UsersDS extends GwtRpcDataSource {
 									});
 						}
 					}
-				});
+			});
+		}
+		else {
+			SC.say(selectedIds.length+"");			
+		}
 	}
 	 
 	

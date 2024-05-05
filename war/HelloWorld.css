@@ -16,3 +16,9 @@
 	display: flex;
 	justify-content: center;
 }
+
+.trash{
+	position: absolute;
+	right: 10%;
+	top: 10%;
+}
