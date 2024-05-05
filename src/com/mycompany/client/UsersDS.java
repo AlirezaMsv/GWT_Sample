@@ -28,6 +28,10 @@ public class UsersDS extends GwtRpcDataSource {
 	
 	private int id;
 	
+	public void setSelectedID(int id) {
+		this.id = id;
+	}
+	
 	ValueCallback cb;
 	
 	private final static UsersServiceAsync usersService = GWT.create(UsersService.class);
@@ -36,6 +40,9 @@ public class UsersDS extends GwtRpcDataSource {
 		this.type = type;
 		for (String i : fields) {
 			DataSourceField dt = new DataSourceField(i, FieldType.TEXT, i);
+			if (i.equals("id")) {
+				dt.setPrimaryKey(true);
+			}
 			this.addField(dt);
 		}
 	}	
@@ -46,8 +53,10 @@ public class UsersDS extends GwtRpcDataSource {
 		this.cb = cb;
 		for (String i : fields) {
 			DataSourceField dt = new DataSourceField(i, FieldType.TEXT, i);
-			if (i.equals("id"))
+			if (i.equals("id")) {
 				dt.setCanEdit(false);
+				dt.setPrimaryKey(true);
+			}
 			this.addField(dt);
 		}
 	}	
@@ -57,8 +66,10 @@ public class UsersDS extends GwtRpcDataSource {
 		this.cb = cb;
 		for (String i : fields) {
 			DataSourceField dt = new DataSourceField(i, FieldType.TEXT, i);
-			if (i.equals("id"))
+			if (i.equals("id")) {
 				dt.setCanEdit(false);
+				dt.setPrimaryKey(true);
+			}
 			this.addField(dt);
 		}
 	}
@@ -173,7 +184,6 @@ public class UsersDS extends GwtRpcDataSource {
 			@Override
 			public void onSuccess(Boolean result) {
 				// TODO Auto-generated method stub
-				SC.say("hey");
 				if (result)
 					cb.execute("");
 				else
@@ -185,7 +195,23 @@ public class UsersDS extends GwtRpcDataSource {
 	@Override
 	protected void executeRemove(String requestId, DSRequest request, DSResponse response) {
 		// TODO Auto-generated method stub
-		
+		usersService.removeUser(id, new AsyncCallback<Boolean>() {
+
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+				SC.say("Error!", "Sth went wrong!");
+			}
+
+			@Override
+			public void onSuccess(Boolean result) {
+				// TODO Auto-generated method stub
+				if (result)
+					cb.execute("");
+				else
+					SC.say("Error", "Sth went wrong!");
+			}
+		});
 	}
 	 
 	

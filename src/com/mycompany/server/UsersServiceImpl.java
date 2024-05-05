@@ -34,5 +34,11 @@ public class UsersServiceImpl extends RemoteServiceServlet implements UsersServi
 		// TODO Auto-generated method stub
 		return DBManager.addUser(user);
 	}
+
+	@Override
+	public Boolean removeUser(Integer id) {
+		// TODO Auto-generated method stub
+		return DBManager.removeUser(id);
+	}
 	
 }

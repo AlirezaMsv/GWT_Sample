@@ -11,4 +11,5 @@ public interface UsersServiceAsync {
 	void fetchUsersDetails(Integer id, AsyncCallback<HashMap<String, String>> callback);
 	void updateUser(User user, Integer id, AsyncCallback<Boolean> callback);
 	void addUser(User user, AsyncCallback<Boolean> callback);
+	void removeUser(Integer id, AsyncCallback<Boolean> callback);
 }

@@ -186,5 +186,27 @@ public class DBManager {
         }
     }
 
+    public static Boolean removeUser(Integer id) {
+    	try {
+            // Load the MySQL JDBC driver
+            Class.forName("com.mysql.cj.jdbc.Driver");
+
+            // Connect to the database
+            try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+                // Prepare SQL statement
+                String sql = "DELETE FROM usersInfo WHERE id = ?";
+                try (PreparedStatement statement = conn.prepareStatement(sql)) {
+                    statement.setInt(1, id);
+
+                    // Execute query
+                    System.out.println(statement.executeUpdate());
+                    return true;
+                }
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
     
 }

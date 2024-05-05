@@ -16,7 +16,6 @@ import com.smartgwt.client.widgets.form.fields.IntegerItem;
 import com.smartgwt.client.widgets.form.fields.PasswordItem;
 import com.smartgwt.client.widgets.form.fields.TextAreaItem;
 import com.smartgwt.client.widgets.form.fields.TextItem;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Cookies;
 import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.types.DSOperationType;
@@ -29,6 +28,8 @@ import com.smartgwt.client.widgets.grid.ListGridField;
 import com.smartgwt.client.widgets.grid.ListGridRecord;
 import com.smartgwt.client.widgets.grid.events.CellDoubleClickEvent;
 import com.smartgwt.client.widgets.grid.events.CellDoubleClickHandler;
+import com.smartgwt.client.widgets.grid.events.RemoveRecordClickEvent;
+import com.smartgwt.client.widgets.grid.events.RemoveRecordClickHandler;
 import com.smartgwt.client.widgets.layout.HLayout;
 import com.smartgwt.client.widgets.layout.VLayout;
 import com.smartgwt.client.widgets.tab.Tab;
@@ -137,9 +138,30 @@ public class Dashboard {
 
 	      usersGrid.setWidth100();
 	      usersGrid.setHeight100();
-	      usersGrid.setCanRemoveRecords(true);
+	      
 	      usersGrid.setFields(rowNum, firstname, lastname, age);  
-	
+	      String[] gridFields = {"id", "firstname", "lastname", "age"};
+	      UsersDS gridDS = new UsersDS(gridFields, Type.GRID, new ValueCallback() {
+			
+			@Override
+			public void execute(String value) {
+				// TODO Auto-generated method stub
+				SC.say("Done", "Items removed successfully!");
+				usersGrid.invalidateCache();
+			}
+		});
+		  usersGrid.setDataSource(gridDS);
+	      usersGrid.setAutoFetchData(true); 
+	      usersGrid.setDataFetchMode(FetchMode.PAGED);
+	      usersGrid.setCanRemoveRecords(true);
+	      usersGrid.addRemoveRecordClickHandler(new RemoveRecordClickHandler() {
+				
+				@Override
+				public void onRemoveRecordClick(RemoveRecordClickEvent event) {
+					// TODO Auto-generated method stub
+					gridDS.setSelectedID(Integer.parseInt(usersGrid.getRecord(event.getRowNum()).getAttribute("id")));
+				}
+			});
 	      gridTab.setPane(usersGrid);  
 	  	      
 	      //edit tab
@@ -212,8 +234,8 @@ public class Dashboard {
 	      Tab addTab = new Tab("Add");
 	      HLayout addLayout = new HLayout();
 
-		  String[] fieldNames = {"firstname", "lastname", "age", "phoneNum", "email", "password"};
-	      UsersDS addFormDS = new UsersDS(fieldNames, Type.FORM, new ValueCallback() {
+		  String[] addFormFields = {"firstname", "lastname", "age", "phoneNum", "email", "password"};
+	      UsersDS addFormDS = new UsersDS(addFormFields, Type.FORM, new ValueCallback() {
 
 			@Override
 			public void execute(String value) {
@@ -304,8 +326,8 @@ public class Dashboard {
 				topTabSet.enableTab(2);
 				ListGridRecord user = event.getRecord();
 				// create datasource
-				String[] fieldNames = {"id", "firstname", "lastname", "age", "phoneNum", "email"};
-				editForm.setDataSource(new UsersDS(fieldNames, Type.FORM, Integer.parseInt(user.getAttribute("id")), new ValueCallback() {
+				String[] editFormFields = {"id", "firstname", "lastname", "age", "phoneNum", "email"};
+				editForm.setDataSource(new UsersDS(editFormFields, Type.FORM, Integer.parseInt(user.getAttribute("id")), new ValueCallback() {
 					
 					@Override
 					public void execute(String value) {
@@ -361,12 +383,6 @@ public class Dashboard {
 	public static void show() {
 		visible = true;
 		RootPanel.get("logout_btn").add(getButton());
-		// set grid
-//		usersGrid.setpage
-		String[] fieldNames = {"id", "firstname", "lastname", "age"};
-		usersGrid.setDataSource(new UsersDS(fieldNames, Type.GRID));
-        usersGrid.setAutoFetchData(true); 
-        usersGrid.setDataFetchMode(FetchMode.PAGED);
 		RootPanel.get("grid").add(getGrid());
 	}
 	
