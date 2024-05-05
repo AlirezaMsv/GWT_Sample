@@ -13,6 +13,7 @@ import com.smartgwt.client.widgets.events.MouseDownEvent;
 import com.smartgwt.client.widgets.events.MouseDownHandler;
 import com.smartgwt.client.widgets.form.DynamicForm;
 import com.smartgwt.client.widgets.form.fields.IntegerItem;
+import com.smartgwt.client.widgets.form.fields.PasswordItem;
 import com.smartgwt.client.widgets.form.fields.TextAreaItem;
 import com.smartgwt.client.widgets.form.fields.TextItem;
 import com.google.gwt.core.client.GWT;
@@ -55,6 +56,7 @@ public class Dashboard {
 	private static TextItem txtEmailCreate;
 	private static IntegerItem txtAgeCreate;
 	private static TextItem txtPhoneNumCreate;
+	private static PasswordItem txtPasswordCreate;
 	private static IButton createBtn;
 	private static IButton editBtn;
 	private static IButton cancelBtnEdit;
@@ -153,6 +155,7 @@ public class Dashboard {
 	      txtFirstnameEdit = new TextItem("firstname", "Firstname:");	      
 	      txtLastnameEdit = new TextItem("lastname", "Lastname:");
 	      txtAgeEdit = new IntegerItem("age", "Age:");
+	      txtAgeEdit.setKeyPressFilter("[0-9]");
 	      txtPhoneNumEdit = new TextItem("phoneNum", "Phone Number:");
 	      txtEmailEdit = new TextItem("email", "Email:");
 	      VLayout btns = new VLayout();
@@ -174,11 +177,6 @@ public class Dashboard {
 				//check fields
 				if(checkFields(editForm.getValueAsString("email"), editForm.getValueAsString("age"), editForm.getValueAsString("phoneNum"))) {
 					// execute update
-					GWT.log(editForm.getValueAsString("firstname"));
-					GWT.log(editForm.getValueAsString("lastname"));
-					GWT.log(editForm.getValueAsString("age"));
-					GWT.log(editForm.getValueAsString("email"));
-					GWT.log(editForm.getValueAsString("phoneNum"));
 					editForm.setSaveOperationType(DSOperationType.UPDATE);
 					editForm.saveData();
 				}
@@ -213,21 +211,58 @@ public class Dashboard {
 	      //add tab
 	      Tab addTab = new Tab("Add");
 	      HLayout addLayout = new HLayout();
+
+		  String[] fieldNames = {"firstname", "lastname", "age", "phoneNum", "email", "password"};
+	      UsersDS addFormDS = new UsersDS(fieldNames, Type.FORM, new ValueCallback() {
+
+			@Override
+			public void execute(String value) {
+				// TODO Auto-generated method stub
+				clearCreateForm();
+				SC.say("Success", "User added successfully!");
+				topTabSet.selectTab(0);
+				usersGrid.invalidateCache();
+			}
+	      });
 	      
 	      DynamicForm addForm = new DynamicForm();  
 	      addForm.setWidth("40%");  
 	      addForm.setHeight100();
+	      addForm.setDataSource(addFormDS);
 	      
 	      txtFirstnameCreate = new TextItem("firstname", "Firstname:");	      
 	      txtLastnameCreate = new TextItem("lastname", "Lastname:");
 	      txtAgeCreate = new IntegerItem("age", "Age:");
+	      txtAgeCreate.setKeyPressFilter("[0-9]");
 	      txtPhoneNumCreate = new TextItem("phoneNum", "Phone Number:");
 	      txtEmailCreate = new TextItem("email", "Email:");
+	      txtPasswordCreate = new PasswordItem("password", "Password");
 	      btns = new VLayout();
 	      btns.setMembersMargin(15);
 	      createBtn = new IButton("Add");
 	      createBtn.setWidth(100);
 	      createBtn.setBackgroundColor("green");
+	      createBtn.addClickHandler(new ClickHandler() {
+			
+			@Override
+			public void onClick(ClickEvent event) {
+				// TODO Auto-generated method stub
+				if (empty(addForm.getValueAsString("firstname")) ||
+						empty(addForm.getValueAsString("lastname")) ||
+						empty(addForm.getValueAsString("age")) ||
+						empty(addForm.getValueAsString("email")) ||
+						empty(addForm.getValueAsString("phoneNum"))
+						) {
+					SC.say("Error!", "Please fill all fields!");
+				}
+				//check fields
+				if(checkFields(addForm.getValueAsString("email"), addForm.getValueAsString("age"), addForm.getValueAsString("phoneNum"))) {
+					// execute update
+					addForm.setSaveOperationType(DSOperationType.ADD);
+					addForm.saveData();
+				}
+			}
+		});
 	      cancelBtnCreate = new IButton("Cancel");
 	      cancelBtnCreate.setWidth(100);
 	      cancelBtnCreate.setBackgroundColor("red");
@@ -247,7 +282,7 @@ public class Dashboard {
 	      btns.addMember(cancelBtnCreate);
 	      
 	      addForm.setFields(txtFirstnameCreate, txtLastnameCreate, txtAgeCreate, 
-	    		  txtPhoneNumCreate, txtEmailCreate);
+	    		  txtPhoneNumCreate, txtEmailCreate, txtPasswordCreate);
 	        
 	      addLayout.addMember(addForm);
 	      addLayout.addMember(btns);
@@ -270,7 +305,7 @@ public class Dashboard {
 				ListGridRecord user = event.getRecord();
 				// create datasource
 				String[] fieldNames = {"id", "firstname", "lastname", "age", "phoneNum", "email"};
-				editForm.setDataSource(new UsersDS(fieldNames, Type.LIST, Integer.parseInt(user.getAttribute("id")), new ValueCallback() {
+				editForm.setDataSource(new UsersDS(fieldNames, Type.FORM, Integer.parseInt(user.getAttribute("id")), new ValueCallback() {
 					
 					@Override
 					public void execute(String value) {

@@ -46,6 +46,7 @@ public class User implements Serializable {
 		str.append("lastname\t").append(lastname).append("\n");
 		str.append("age\t").append(age).append("\n");
 		str.append("email\t").append(email).append("\n");
+		str.append("password\t").append(password).append("\n");
 		str.append("phoneNum\t").append(phoneNum).append("\n");
 		return str.toString();
 	}

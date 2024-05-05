@@ -11,7 +11,6 @@ import com.smartgwt.client.data.DSRequest;
 import com.smartgwt.client.data.DSResponse;
 import com.smartgwt.client.data.DataSourceField;
 import com.smartgwt.client.data.Record;
-import com.smartgwt.client.data.fields.DataSourceIntegerField;
 import com.smartgwt.client.rpc.RPCManager;
 import com.smartgwt.client.types.FieldType;
 import com.smartgwt.client.types.PromptStyle;
@@ -22,7 +21,7 @@ public class UsersDS extends GwtRpcDataSource {
 	
 	enum Type {
 		GRID,
-		LIST
+		FORM
 	}
 	
 	Type type;
@@ -52,6 +51,17 @@ public class UsersDS extends GwtRpcDataSource {
 			this.addField(dt);
 		}
 	}	
+	
+	public UsersDS(String[] fields, Type type, ValueCallback cb){
+		this.type = type;
+		this.cb = cb;
+		for (String i : fields) {
+			DataSourceField dt = new DataSourceField(i, FieldType.TEXT, i);
+			if (i.equals("id"))
+				dt.setCanEdit(false);
+			this.addField(dt);
+		}
+	}
 
 	@Override
 	protected void executeFetch(String requestId, DSRequest request, DSResponse response) {
@@ -79,7 +89,7 @@ public class UsersDS extends GwtRpcDataSource {
 			});
 		}
 		
-		else if (type == Type.LIST) {
+		else if (type == Type.FORM) {
 			// fetch user details
 			RPCManager.setPromptStyle(PromptStyle.CURSOR);
 			usersService.fetchUsersDetails(id, new AsyncCallback<HashMap<String, String>> () {
@@ -113,7 +123,33 @@ public class UsersDS extends GwtRpcDataSource {
 	@Override
 	protected void executeAdd(String requestId, DSRequest request, DSResponse response) {
 		// TODO Auto-generated method stub
-		
+		Record record = request.getAttributeAsRecord("data");
+		User user = new User(record.getAttributeAsString("firstname"), 
+				record.getAttributeAsString("lastname"), 
+				record.getAttributeAsString("phoneNum"), 
+				record.getAttributeAsString("email"), 
+				record.getAttributeAsString("password"), 
+				record.getAttributeAsString("age"));
+		GWT.log(user.toString());
+		usersService.addUser(user, new AsyncCallback<Boolean>() {
+			
+			@Override
+			public void onSuccess(Boolean result) {
+				// TODO Auto-generated method stub
+				if (result) {
+					cb.execute("");
+				}
+				else {
+					SC.say("Error!", "Sth went wrong!");	
+				}
+			}
+			
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+				SC.say("Error!", "Sth went wrong!");
+			}
+		});
 	}
 
 	@Override
