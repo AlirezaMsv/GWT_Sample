@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.mycompany.shared.User;
 import com.smartgwt.client.data.DSRequest;
 import com.smartgwt.client.data.DSResponse;
 import com.smartgwt.client.data.DataSourceField;
@@ -26,12 +27,29 @@ public class UsersDS extends GwtRpcDataSource {
 	
 	Type type;
 	
+	private int id;
+	
+	ValueCallback cb;
+	
 	private final static UsersServiceAsync usersService = GWT.create(UsersService.class);
 	
 	public UsersDS(String[] fields, Type type){
 		this.type = type;
 		for (String i : fields) {
-			this.addField(new DataSourceField(i, FieldType.TEXT, i));
+			DataSourceField dt = new DataSourceField(i, FieldType.TEXT, i);
+			this.addField(dt);
+		}
+	}	
+	
+	public UsersDS(String[] fields, Type type, int id, ValueCallback cb){
+		this.type = type;
+		this.id = id;
+		this.cb = cb;
+		for (String i : fields) {
+			DataSourceField dt = new DataSourceField(i, FieldType.TEXT, i);
+			if (i.equals("id"))
+				dt.setCanEdit(false);
+			this.addField(dt);
 		}
 	}	
 
@@ -62,7 +80,25 @@ public class UsersDS extends GwtRpcDataSource {
 		}
 		
 		else if (type == Type.LIST) {
-			SC.say("ahaaaan");
+			// fetch user details
+			RPCManager.setPromptStyle(PromptStyle.CURSOR);
+			usersService.fetchUsersDetails(id, new AsyncCallback<HashMap<String, String>> () {
+
+				@Override
+				public void onFailure(Throwable caught) {
+					// TODO Auto-generated method stub
+					SC.say("Error", "Sth went wrong!");
+				}
+
+				@Override
+				public void onSuccess(HashMap<String, String> result) {
+					// TODO Auto-generated method stub
+					Record[] res = {new Record(result)};
+					response.setData(res);
+					processResponse(requestId, response);
+				}
+				
+			});
 		}
 	}
 	
@@ -83,7 +119,31 @@ public class UsersDS extends GwtRpcDataSource {
 	@Override
 	protected void executeUpdate(String requestId, DSRequest request, DSResponse response) {
 		// TODO Auto-generated method stub
-		
+		Record record = request.getAttributeAsRecord("data");
+		User user = new User(record.getAttributeAsString("firstname"), 
+				record.getAttributeAsString("lastname"), 
+				record.getAttributeAsString("phoneNum"), 
+				record.getAttributeAsString("email"), 
+				record.getAttributeAsString("age"));
+		GWT.log(user.toString());
+		usersService.updateUser(user, id, new AsyncCallback<Boolean>() {
+
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+				SC.say("Error!", "Sth went wrong!");
+			}
+
+			@Override
+			public void onSuccess(Boolean result) {
+				// TODO Auto-generated method stub
+				SC.say("hey");
+				if (result)
+					cb.execute("");
+				else
+					SC.say("Error", "Sth went wrong!");
+			}
+		});
 	}
 
 	@Override

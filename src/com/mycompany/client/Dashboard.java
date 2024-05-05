@@ -4,6 +4,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.mycompany.client.UsersDS.Type;
 import com.smartgwt.client.util.SC;
+import com.smartgwt.client.util.ValueCallback;
 import com.smartgwt.client.widgets.Button;
 import com.smartgwt.client.widgets.IButton;
 import com.smartgwt.client.widgets.events.ClickEvent;
@@ -14,6 +15,7 @@ import com.smartgwt.client.widgets.form.DynamicForm;
 import com.smartgwt.client.widgets.form.fields.IntegerItem;
 import com.smartgwt.client.widgets.form.fields.TextAreaItem;
 import com.smartgwt.client.widgets.form.fields.TextItem;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Cookies;
 import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.types.DSOperationType;
@@ -30,6 +32,8 @@ import com.smartgwt.client.widgets.layout.HLayout;
 import com.smartgwt.client.widgets.layout.VLayout;
 import com.smartgwt.client.widgets.tab.Tab;
 import com.smartgwt.client.widgets.tab.TabSet;
+
+import jsinterop.annotations.JsMethod;
 
 public class Dashboard {
 	
@@ -82,7 +86,7 @@ public class Dashboard {
 		topTabSet = new TabSet();
 		
         topTabSet.setTabBarPosition(Side.TOP);  
-        topTabSet.setWidth("50%");  
+        topTabSet.setWidth("25%");  
         topTabSet.setHeight("80%");  
   
         // text Area
@@ -118,21 +122,21 @@ public class Dashboard {
 	      idfield.setHidden(true);
 	      ListGridField firstname = new ListGridField("firstname", "Firstname", 120);  
 	      firstname.setAlign(Alignment.CENTER);
-	      ListGridField lastname = new ListGridField("lastname", "Lastname", 100);   
+	      ListGridField lastname = new ListGridField("lastname", "Lastname", 120);   
 	      lastname.setAlign(Alignment.CENTER);
 	      ListGridField age = new ListGridField("age", "Age", 100);  
 	      age.setType(ListGridFieldType.INTEGER);  
 	      age.setAlign(Alignment.CENTER);
-	      ListGridField phoneNum = new ListGridField("phoneNum", "Phone Number", 200);   
-	      phoneNum.setAlign(Alignment.CENTER);
-	      phoneNum.setType(ListGridFieldType.PHONENUMBER);  
-	      ListGridField email = new ListGridField("email", "Email");   
-	      email.setAlign(Alignment.CENTER);
+//	      ListGridField phoneNum = new ListGridField("phoneNum", "Phone Number", 200);   
+//	      phoneNum.setAlign(Alignment.CENTER);
+//	      phoneNum.setType(ListGridFieldType.PHONENUMBER);  
+//	      ListGridField email = new ListGridField("email", "Email");   
+//	      email.setAlign(Alignment.CENTER);
 
 	      usersGrid.setWidth100();
 	      usersGrid.setHeight100();
 	      usersGrid.setCanRemoveRecords(true);
-	      usersGrid.setFields(rowNum, firstname, lastname, age, phoneNum, email);  
+	      usersGrid.setFields(rowNum, firstname, lastname, age);  
 	
 	      gridTab.setPane(usersGrid);  
 	  	      
@@ -159,8 +163,25 @@ public class Dashboard {
 			
 			@Override
 			public void onClick(ClickEvent event) {
-//				editForm.setSaveOperationType(DSOperationType.UPDATE);
-//				editForm.saveData();
+				if (empty(editForm.getValueAsString("firstname")) ||
+						empty(editForm.getValueAsString("lastname")) ||
+						empty(editForm.getValueAsString("age")) ||
+						empty(editForm.getValueAsString("email")) ||
+						empty(editForm.getValueAsString("phoneNum"))
+						) {
+					SC.say("Error!", "Please fill all fields!");
+				}
+				//check fields
+				if(checkFields(editForm.getValueAsString("email"), editForm.getValueAsString("age"), editForm.getValueAsString("phoneNum"))) {
+					// execute update
+					GWT.log(editForm.getValueAsString("firstname"));
+					GWT.log(editForm.getValueAsString("lastname"));
+					GWT.log(editForm.getValueAsString("age"));
+					GWT.log(editForm.getValueAsString("email"));
+					GWT.log(editForm.getValueAsString("phoneNum"));
+					editForm.setSaveOperationType(DSOperationType.UPDATE);
+					editForm.saveData();
+				}
 			}
 		});
 	      cancelBtnEdit = new IButton("Cancel");
@@ -176,12 +197,7 @@ public class Dashboard {
 				//reset form from datasource
 				
 				//reset manually
-				txtIDEdit.setValue("");
-				txtFirstnameEdit.setValue("");
-				txtLastnameEdit.setValue("");
-				txtAgeEdit.setValue("");
-				txtPhoneNumEdit.setValue("");
-				txtEmailEdit.setValue("");
+				clearEditForm();
 			}
 		});
 	      btns.addMember(editBtn);
@@ -224,11 +240,7 @@ public class Dashboard {
 					
 					//reset form manually
 					topTabSet.selectTab(0);
-					txtFirstnameCreate.setValue("");
-					txtLastnameCreate.setValue("");
-					txtAgeCreate.setValue("");
-					txtPhoneNumCreate.setValue("");
-					txtEmailCreate.setValue("");
+					clearCreateForm();
 				}
 			});
 	      btns.addMember(createBtn);
@@ -258,16 +270,26 @@ public class Dashboard {
 				ListGridRecord user = event.getRecord();
 				// create datasource
 				String[] fieldNames = {"id", "firstname", "lastname", "age", "phoneNum", "email"};
-				editForm.setDataSource(new UsersDS(fieldNames, Type.LIST));
+				editForm.setDataSource(new UsersDS(fieldNames, Type.LIST, Integer.parseInt(user.getAttribute("id")), new ValueCallback() {
+					
+					@Override
+					public void execute(String value) {
+						// TODO Auto-generated method stub
+						SC.say("Success", "Updated user info successfully!");
+						// TODO Auto-generated method stub
+						topTabSet.selectTab(0);
+						topTabSet.disableTab(2);
+						//reset form from datasource
+						
+						//reset manually
+						clearEditForm();
+						// usersGrid.setFetchOperation("fetch");
+						usersGrid.invalidateCache();
+					}
+				}));
 				editForm.setSaveOperationType(DSOperationType.FETCH);
-				editForm.saveData();
+				editForm.fetchData();
 				//
-//				txtIDEdit.setValue(user.getAttribute("id"));
-//				txtFirstnameEdit.setValue(user.getAttribute("firstname"));
-//				txtLastnameEdit.setValue(user.getAttribute("lastname"));
-//				txtAgeEdit.setValue(user.getAttribute("age"));
-//				txtPhoneNumEdit.setValue(user.getAttribute("phoneNum"));
-//				txtEmailEdit.setValue(user.getAttribute("email"));
 				topTabSet.selectTab(2);
 			}
 		});
@@ -284,15 +306,68 @@ public class Dashboard {
 		}
 	}
 	
+	private static void clearEditForm() {
+		txtIDEdit.setValue("");
+		txtFirstnameEdit.setValue("");
+		txtLastnameEdit.setValue("");
+		txtAgeEdit.setValue("");
+		txtPhoneNumEdit.setValue("");
+		txtEmailEdit.setValue("");
+	}
+	
+	private static void clearCreateForm() {
+		txtFirstnameCreate.setValue("");
+		txtLastnameCreate.setValue("");
+		txtAgeCreate.setValue("");
+		txtPhoneNumCreate.setValue("");
+		txtEmailCreate.setValue("");
+	}
+	
 	public static void show() {
 		visible = true;
 		RootPanel.get("logout_btn").add(getButton());
 		// set grid
 //		usersGrid.setpage
-		String[] fieldNames = {"id", "firstname", "lastname", "age", "phoneNum", "email"};
+		String[] fieldNames = {"id", "firstname", "lastname", "age"};
 		usersGrid.setDataSource(new UsersDS(fieldNames, Type.GRID));
         usersGrid.setAutoFetchData(true); 
         usersGrid.setDataFetchMode(FetchMode.PAGED);
 		RootPanel.get("grid").add(getGrid());
 	}
+	
+	static boolean checkFields(String email, String age, String phone) {
+		//		email
+        if (!checkEmail(email)) {
+        	SC.say("Error", "Invalid email address!");
+        	return false;
+        }
+        
+        // age
+		if (Integer.parseInt(age) > 80) {
+			SC.say("Error", "Age can't be more than 80!");
+			return false;
+		}
+		else if(Integer.parseInt(age) <= 4) {
+			SC.say("Error", "Age can't be less than 4!");
+			return false;
+		}
+		
+		//phone number
+		if (phone.charAt(0) != '0' || phone.length() != 11) {
+			SC.say("Error", "Phone Number is not valid!");
+			return false;
+		}
+		
+		return true;
+	}
+
+	public static boolean empty( final String s ) {
+	  // Null-safe, short-circuit evaluation.
+	  return s == null || s.trim().isEmpty();
+	}
+
+    // Declare JavaScript function using JsMethod annotation
+    @JsMethod(namespace = "window", name = "checkEmail")
+    public static native boolean checkEmail(String email);
+	
 }
