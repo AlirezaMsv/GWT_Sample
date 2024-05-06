@@ -13,5 +13,5 @@ public interface UsersService extends RemoteService {
 	HashMap<String, String> fetchUsersDetails(Integer id);
 	Boolean updateUser(User user, Integer id);
 	Boolean addUser(User user);
-	Boolean removeUser(Integer id);
+	Boolean removeSelected(String[] ids);
 }

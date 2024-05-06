@@ -202,42 +202,38 @@ public class UsersDS extends GwtRpcDataSource {
 	@Override
 	protected void executeRemove(String requestId, DSRequest request, DSResponse response) {
 		// TODO Auto-generated method stub
-		if (selectedIds == null) {
-			SC.confirm("Warning!", 
-				"Delete user: " + request.getAttributeAsRecord("data").getAttribute("firstname") + " " +
-						request.getAttributeAsRecord("data").getAttribute("lastname") + "?", 
-				new BooleanCallback() {
+		SC.confirm("Warning!", "You are going to delete " 
+					+ (selectedIds == null ? 1 : selectedIds.length) +
+					" records."
+				, new BooleanCallback() {
 					
 					@Override
 					public void execute(Boolean value) {
 						// TODO Auto-generated method stub
 						if (value) {
-							usersService.removeUser(Integer.parseInt(request.getAttributeAsRecord("data").getAttribute("id")),
-									
-									new AsyncCallback<Boolean>() {
-		
-										@Override
-										public void onFailure(Throwable caught) {
-											// TODO Auto-generated method stub
-											SC.say("Error!", "Sth went wrong!");
-										}
-		
-										@Override
-										public void onSuccess(Boolean result) {
-											// TODO Auto-generated method stub
-											if (result)
-												cb.execute("");
-											else
-												SC.say("Error", "Sth went wrong!");
-										}
-									});
+							usersService.removeSelected(selectedIds == null ? 
+									new String[] {request.getAttributeAsRecord("data").getAttribute("id")} : selectedIds
+									, new AsyncCallback<Boolean>(){
+
+								@Override
+								public void onFailure(Throwable caught) {
+									// TODO Auto-generated method stub
+									SC.say("Error", "Sth went wrong!");
+								}
+
+								@Override
+								public void onSuccess(Boolean result) {
+									// TODO Auto-generated method stub
+									if (result)
+										cb.execute("");
+									else
+										SC.say("Error", "Sth went wrong!");
+								}
+								
+							});
 						}
 					}
-			});
-		}
-		else {
-			SC.say(selectedIds.length+"");			
-		}
+				});			
 	}
 	 
 	

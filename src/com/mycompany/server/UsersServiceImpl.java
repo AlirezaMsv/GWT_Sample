@@ -36,9 +36,9 @@ public class UsersServiceImpl extends RemoteServiceServlet implements UsersServi
 	}
 
 	@Override
-	public Boolean removeUser(Integer id) {
+	public Boolean removeSelected(String[] ids) {
 		// TODO Auto-generated method stub
-		return DBManager.removeUser(id);
+		return DBManager.removeSelected(ids);
 	}
 	
 }

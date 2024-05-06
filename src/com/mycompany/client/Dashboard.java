@@ -48,7 +48,7 @@ public class Dashboard {
 	
 	private static Button logout_btn;
 	private static TextAreaItem textAreaItem;
-	private static ListGrid usersGrid = new ListGrid();
+	private static ListGrid usersGrid;
 	private static TabSet topTabSet;
 	private static boolean visible = false;
 
@@ -117,7 +117,14 @@ public class Dashboard {
 	}
 	
 	private static Widget getGrid() {
+		if (topTabSet != null)
+		{
+			usersGrid.invalidateCache();
+			return topTabSet;
+		}
+		
 		topTabSet = new TabSet();
+		usersGrid = new ListGrid();
 		
         topTabSet.setTabBarPosition(Side.TOP);  
         topTabSet.setWidth("30%");  

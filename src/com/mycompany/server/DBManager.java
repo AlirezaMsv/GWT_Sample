@@ -186,7 +186,8 @@ public class DBManager {
         }
     }
 
-    public static Boolean removeUser(Integer id) {
+    
+    public static Boolean removeSelected(String[] ids) {
     	try {
             // Load the MySQL JDBC driver
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -196,10 +197,12 @@ public class DBManager {
                 // Prepare SQL statement
                 String sql = "DELETE FROM usersInfo WHERE id = ?";
                 try (PreparedStatement statement = conn.prepareStatement(sql)) {
-                    statement.setInt(1, id);
-
-                    // Execute query
-                    System.out.println(statement.executeUpdate());
+                	for (String i : ids) {
+                		statement.setInt(1, Integer.parseInt(i));
+                		
+                		// Execute query
+                		System.out.println(statement.executeUpdate());
+                	}
                     return true;
                 }
             }
