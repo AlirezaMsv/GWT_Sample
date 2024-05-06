@@ -40,5 +40,17 @@ public class UsersServiceImpl extends RemoteServiceServlet implements UsersServi
 		// TODO Auto-generated method stub
 		return DBManager.removeSelected(ids);
 	}
+
+	@Override
+	public ArrayList<HashMap<String, String>> fetchAllCombo(Integer start, Integer end, String search) {
+		// TODO Auto-generated method stub
+		return DBManager.fetchAllCombo(start, end, search);
+	}
+
+	@Override
+	public ArrayList<HashMap<String, String>> fetchOthersCombo(Integer id, Integer start, Integer end, String search) {
+		// TODO Auto-generated method stub
+		return DBManager.fetchOthersCombo(id, start, end, search);
+	}
 	
 }

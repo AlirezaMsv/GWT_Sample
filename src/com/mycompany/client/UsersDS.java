@@ -30,6 +30,12 @@ public class UsersDS extends GwtRpcDataSource {
 	
 	private int id;
 	
+	private String searchValue = "";
+	
+	public void setSearchValue (String searchValue) {
+		this.searchValue = searchValue;
+	}
+	
 	private String[] selectedIds = null;
 	
 	public void setSelectedIds(String[] arr) {
@@ -85,8 +91,6 @@ public class UsersDS extends GwtRpcDataSource {
 	@Override
 	protected void executeFetch(String requestId, DSRequest request, DSResponse response) {
 		if (type == Type.GRID) {
-			GWT.log("start: " + request.getStartRow());
-			GWT.log("len: " + (request.getEndRow() - request.getStartRow()));
 			// fetch users
 			RPCManager.setPromptStyle(PromptStyle.CURSOR);
 			usersService.fetchusers(request.getStartRow(), request.getEndRow(), new AsyncCallback<ArrayList<HashMap<String, String>>>() {			
@@ -127,6 +131,40 @@ public class UsersDS extends GwtRpcDataSource {
 					processResponse(requestId, response);
 				}
 				
+			});
+		}
+		else if (type == Type.COMBO) {
+			GWT.log("start: " + request.getStartRow());
+			GWT.log("len: " + (request.getEndRow() - request.getStartRow()));
+			GWT.log("bia: " + searchValue);
+			// fetch users
+			RPCManager.setPromptStyle(PromptStyle.CURSOR);
+			usersService.fetchAllCombo(request.getStartRow(), request.getEndRow(), searchValue, new AsyncCallback<ArrayList<HashMap<String, String>>>() {			
+				@Override
+				public void onSuccess(ArrayList<HashMap<String, String>> result) {
+					//grid
+					response.setTotalRows(result.size() > 0 ? Integer.parseInt(result.get(0).get("n")) : 1);
+					result.remove(0);
+					if (result.size() > 0) {
+						setGridData(result, response);
+					}
+					else {
+						HashMap<String, String> map = new HashMap<String, String>();
+						map.put("id", "-1");
+						map.put("name", "No Values");
+						ArrayList<HashMap<String, String>> arr = new ArrayList<HashMap<String, String>>();
+						arr.add(map);
+						setGridData(arr, response);
+					}
+					// process response
+					processResponse(requestId, response);
+				}
+				
+				@Override
+				public void onFailure(Throwable caught) {
+					// TODO Auto-generated method stub
+					SC.say("Error!");
+				}
 			});
 		}
 	}

@@ -12,4 +12,6 @@ public interface UsersServiceAsync {
 	void updateUser(User user, Integer id, AsyncCallback<Boolean> callback);
 	void addUser(User user, AsyncCallback<Boolean> callback);
 	void removeSelected(String[] ids, AsyncCallback<Boolean> callback);
+	void fetchAllCombo(Integer start, Integer end, String search, AsyncCallback<ArrayList<HashMap<String, String>>> callback);
+	void fetchOthersCombo(Integer id, Integer start, Integer end, String search, AsyncCallback<ArrayList<HashMap<String, String>>> callback);
 }

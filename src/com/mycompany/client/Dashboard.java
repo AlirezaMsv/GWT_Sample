@@ -19,10 +19,13 @@ import com.smartgwt.client.widgets.form.fields.IntegerItem;
 import com.smartgwt.client.widgets.form.fields.PasswordItem;
 import com.smartgwt.client.widgets.form.fields.TextAreaItem;
 import com.smartgwt.client.widgets.form.fields.TextItem;
+import com.smartgwt.client.widgets.form.fields.events.ChangedEvent;
+import com.smartgwt.client.widgets.form.fields.events.ChangedHandler;
 
 import java.util.ArrayList;
 
 import com.google.gwt.user.client.Cookies;
+import com.google.gwt.user.client.Timer;
 import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.types.DSOperationType;
 import com.smartgwt.client.types.FetchMode;
@@ -74,6 +77,7 @@ public class Dashboard {
 	private static IButton cancelBtnEdit;
 	private static IButton cancelBtnCreate;
 	private static Canvas trash;
+	private static Timer timer;
 
 	private static Widget buildLogoutBtn() {
 		logout_btn = new Button("Logout");
@@ -153,9 +157,9 @@ public class Dashboard {
 	      ListGridField parentIDfield = new ListGridField("parentID", "Parent ID", 80);  
 	      parentIDfield.setAlign(Alignment.CENTER);
 //	      parentIDfield.setHidden(true);
-	      ListGridField firstname = new ListGridField("firstname", "Firstname", 140);  
+	      ListGridField firstname = new ListGridField("firstname", "Firstname", 120);  
 	      firstname.setAlign(Alignment.CENTER);
-	      ListGridField lastname = new ListGridField("lastname", "Lastname", 140);   
+	      ListGridField lastname = new ListGridField("lastname", "Lastname", 120);   
 	      lastname.setAlign(Alignment.CENTER);
 	      ListGridField age = new ListGridField("age", "Age", 80);  
 	      age.setType(ListGridFieldType.INTEGER);  
@@ -346,12 +350,60 @@ public class Dashboard {
 	      addLayout.addMember(btns);
 	      addTab.setPane(addLayout);
 	      
+	      // combo box
+	      Tab comboTab = new Tab("Combo");
+	      DynamicForm comboForm = new DynamicForm();
+	      comboParentEdit = new ComboBoxItem("parentInfo", "Parent Info:");
+	      String[] comboFields = {"id", "name"};
+	      UsersDS comboDS = new UsersDS(comboFields, Type.COMBO);
+	      comboParentEdit.setOptionDataSource(comboDS);
+	      ListGridField idCombo = new ListGridField("id", "id");  
+	      idCombo.setAlign(Alignment.CENTER);
+	      ListGridField nameCombo = new ListGridField("name", "name");
+	      nameCombo.setAlign(Alignment.CENTER);
+	      // comboParentEdit.setPickListFields(idCombo, nameCombo);
+	      comboParentEdit.setValueField("id");
+	      comboParentEdit.setDisplayField("name");
+	      comboParentEdit.setFetchDelay(1000);
+	      comboParentEdit.setShowPending(true); 
+	      comboParentEdit.setAutoFetchData(true); 
+//	      comboParentEdit.setPickListPlacement("fillScreen");
+	      comboParentEdit.addChangedHandler(new ChangedHandler() {
+			
+			@Override
+			public void onChanged(ChangedEvent event) {
+				if (comboParentEdit.getValueAsString() == null) {
+					comboDS.setSearchValue("");
+				}
+				else
+					comboDS.setSearchValue(comboParentEdit.getValueAsString().trim().toString());
+				// TODO Auto-generated method stub
+				if (timer != null) {
+                    timer.cancel();
+                }
+                
+                // Start a new timer to trigger the server request
+                timer = new Timer() {
+                    @Override
+                    public void run() {
+                        // Call your server request method here
+                    	comboParentEdit.fetchData();
+                    }
+                };
+                timer.schedule(1000); // Schedule the timer to execute after 1 second
+			}
+		});
+
+	      comboForm.setFields(comboParentEdit);
+	      comboTab.setPane(comboForm);
 	      //add tabs
 	      topTabSet.addTab(gridTab); 
 	      topTabSet.addTab(addTab); 
 	      topTabSet.addTab(editTab); 
+	      topTabSet.addTab(comboTab); 
 	      
 		  topTabSet.disableTab(2);
+		  
 	      
 	      // define double click
 	      usersGrid.addCellDoubleClickHandler(new CellDoubleClickHandler() {

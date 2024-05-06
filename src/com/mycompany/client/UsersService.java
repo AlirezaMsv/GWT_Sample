@@ -14,4 +14,6 @@ public interface UsersService extends RemoteService {
 	Boolean updateUser(User user, Integer id);
 	Boolean addUser(User user);
 	Boolean removeSelected(String[] ids);
+	ArrayList<HashMap<String, String>> fetchAllCombo(Integer start, Integer end, String search);
+	ArrayList<HashMap<String, String>> fetchOthersCombo(Integer id, Integer start, Integer end, String search);
 }
