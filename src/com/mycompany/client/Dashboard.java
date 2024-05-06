@@ -71,6 +71,7 @@ public class Dashboard {
 	private static IntegerItem txtAgeCreate;
 	private static TextItem txtPhoneNumCreate;
 	private static PasswordItem txtPasswordCreate;
+	private static ComboBoxItem comboParentCreate;
 	// buttons
 	private static IButton createBtn;
 	private static IButton editBtn;
@@ -211,6 +212,23 @@ public class Dashboard {
 	      editForm.setWidth("40%");  
 	      editForm.setHeight100();
 	      
+	      String[] editFormFields = {"id", "firstname", "lastname","parentInfo", "age", "phoneNum", "email"};
+	      UsersDS editFormDS = new UsersDS(editFormFields, Type.FORM, 0, new ValueCallback() {		
+				@Override
+				public void execute(String value) {
+					// TODO Auto-generated method stub
+					SC.say("Success", "Updated user info successfully!");
+					topTabSet.selectTab(0);
+					topTabSet.disableTab(2);
+					//reset form from datasource
+					
+					//reset manually
+					clearEditForm();
+					usersGrid.invalidateCache();
+				}
+			});
+		  editForm.setDataSource(editFormDS);
+	      
 	      txtIDEdit = new TextItem("id", "Database Id:");
 	      txtIDEdit.setDisabled(true);
 	      txtFirstnameEdit = new TextItem("firstname", "Firstname:");	      
@@ -219,7 +237,48 @@ public class Dashboard {
 	      txtAgeEdit.setKeyPressFilter("[0-9]");
 	      txtPhoneNumEdit = new TextItem("phoneNum", "Phone Number:");
 	      txtEmailEdit = new TextItem("email", "Email:");
-	      comboParentEdit = new ComboBoxItem("parentInfo", "Parent");
+	      // create combo 
+	      comboParentEdit = new ComboBoxItem("parentInfo", "Parent Info:");
+	      String[] comboEditFields = {"id", "name"};
+	      UsersDS comboEditDS = new UsersDS(comboEditFields, Type.COMBO);
+	      comboParentEdit.setOptionDataSource(comboEditDS);
+	      ListGridField idEditCombo = new ListGridField("id", "id");  
+	      idEditCombo.setAlign(Alignment.CENTER);
+	      ListGridField nameEditCombo = new ListGridField("name", "name");
+	      nameEditCombo.setAlign(Alignment.CENTER);
+	      // comboParentEdit.setPickListFields(idCombo, nameCombo);
+	      comboParentEdit.setValueField("id");
+	      comboParentEdit.setDisplayField("name");
+	      comboParentEdit.setFetchDelay(1000);
+	      comboParentEdit.setShowPending(true); 
+	      comboParentEdit.setAutoFetchData(true); 
+//	      comboParentEdit.setPickListPlacement("fillScreen");
+	      comboParentEdit.addChangedHandler(new ChangedHandler() {
+			
+			@Override
+			public void onChanged(ChangedEvent event) {
+				if (comboParentEdit.getValueAsString() == null) {
+					comboEditDS.setSearchValue("");
+				}
+				else
+					comboEditDS.setSearchValue(comboParentEdit.getValueAsString().trim().toString());
+				// TODO Auto-generated method stub
+				if (timer != null) {
+                    timer.cancel();
+                }
+                
+                // Start a new timer to trigger the server request
+                timer = new Timer() {
+                    @Override
+                    public void run() {
+                        // Call your server request method here
+                    	comboParentEdit.fetchData();
+                    }
+                };
+                timer.schedule(1000); // Schedule the timer to execute after 1 second
+			}
+		});
+	      //end combo
 	      VLayout btns = new VLayout();
 	      btns.setMembersMargin(15);
 	      editBtn = new IButton("Edit");
@@ -274,7 +333,7 @@ public class Dashboard {
 	      Tab addTab = new Tab("Add");
 	      HLayout addLayout = new HLayout();
 
-		  String[] addFormFields = {"firstname", "lastname", "age", "phoneNum", "email", "password"};
+		  String[] addFormFields = {"firstname", "lastname", "parentInfo", "age", "phoneNum", "email", "password"};
 	      UsersDS addFormDS = new UsersDS(addFormFields, Type.FORM, new ValueCallback() {
 
 			@Override
@@ -299,6 +358,48 @@ public class Dashboard {
 	      txtPhoneNumCreate = new TextItem("phoneNum", "Phone Number:");
 	      txtEmailCreate = new TextItem("email", "Email:");
 	      txtPasswordCreate = new PasswordItem("password", "Password");
+	      // Combo Create
+	      comboParentCreate = new ComboBoxItem("parentInfo", "Parent Info:");
+	      String[] comboCreateFields = {"id", "name"};
+	      UsersDS comboCreateDS = new UsersDS(comboCreateFields, Type.COMBO);
+	      comboParentCreate.setOptionDataSource(comboCreateDS);
+	      ListGridField idCreateCombo = new ListGridField("id", "id");  
+	      idCreateCombo.setAlign(Alignment.CENTER);
+	      ListGridField nameCombo = new ListGridField("name", "name");
+	      nameCombo.setAlign(Alignment.CENTER);
+	      // comboParentEdit.setPickListFields(idCombo, nameCombo);
+	      comboParentCreate.setValueField("id");
+	      comboParentCreate.setDisplayField("name");
+	      comboParentCreate.setFetchDelay(1000);
+	      comboParentCreate.setShowPending(true); 
+	      comboParentCreate.setAutoFetchData(true); 
+//	      comboParentEdit.setPickListPlacement("fillScreen");
+	      comboParentCreate.addChangedHandler(new ChangedHandler() {
+			
+			@Override
+			public void onChanged(ChangedEvent event) {
+				if (comboParentCreate.getValueAsString() == null) {
+					comboCreateDS.setSearchValue("");
+				}
+				else
+					comboCreateDS.setSearchValue(comboParentCreate.getValueAsString().trim().toString());
+				// TODO Auto-generated method stub
+				if (timer != null) {
+                    timer.cancel();
+                }
+                
+                // Start a new timer to trigger the server request
+                timer = new Timer() {
+                    @Override
+                    public void run() {
+                        // Call your server request method here
+                    	comboParentCreate.fetchData();
+                    }
+                };
+                timer.schedule(1000); // Schedule the timer to execute after 1 second
+			}
+		});
+	      /// end combo
 	      btns = new VLayout();
 	      btns.setMembersMargin(15);
 	      createBtn = new IButton("Add");
@@ -343,64 +444,17 @@ public class Dashboard {
 	      btns.addMember(createBtn);
 	      btns.addMember(cancelBtnCreate);
 	      
-	      addForm.setFields(txtFirstnameCreate, txtLastnameCreate, txtAgeCreate, 
+	      addForm.setFields(txtFirstnameCreate, txtLastnameCreate, comboParentCreate, txtAgeCreate, 
 	    		  txtPhoneNumCreate, txtEmailCreate, txtPasswordCreate);
 	        
 	      addLayout.addMember(addForm);
 	      addLayout.addMember(btns);
 	      addTab.setPane(addLayout);
 	      
-	      // combo box
-	      Tab comboTab = new Tab("Combo");
-	      DynamicForm comboForm = new DynamicForm();
-	      comboParentEdit = new ComboBoxItem("parentInfo", "Parent Info:");
-	      String[] comboFields = {"id", "name"};
-	      UsersDS comboDS = new UsersDS(comboFields, Type.COMBO);
-	      comboParentEdit.setOptionDataSource(comboDS);
-	      ListGridField idCombo = new ListGridField("id", "id");  
-	      idCombo.setAlign(Alignment.CENTER);
-	      ListGridField nameCombo = new ListGridField("name", "name");
-	      nameCombo.setAlign(Alignment.CENTER);
-	      // comboParentEdit.setPickListFields(idCombo, nameCombo);
-	      comboParentEdit.setValueField("id");
-	      comboParentEdit.setDisplayField("name");
-	      comboParentEdit.setFetchDelay(1000);
-	      comboParentEdit.setShowPending(true); 
-	      comboParentEdit.setAutoFetchData(true); 
-//	      comboParentEdit.setPickListPlacement("fillScreen");
-	      comboParentEdit.addChangedHandler(new ChangedHandler() {
-			
-			@Override
-			public void onChanged(ChangedEvent event) {
-				if (comboParentEdit.getValueAsString() == null) {
-					comboDS.setSearchValue("");
-				}
-				else
-					comboDS.setSearchValue(comboParentEdit.getValueAsString().trim().toString());
-				// TODO Auto-generated method stub
-				if (timer != null) {
-                    timer.cancel();
-                }
-                
-                // Start a new timer to trigger the server request
-                timer = new Timer() {
-                    @Override
-                    public void run() {
-                        // Call your server request method here
-                    	comboParentEdit.fetchData();
-                    }
-                };
-                timer.schedule(1000); // Schedule the timer to execute after 1 second
-			}
-		});
-
-	      comboForm.setFields(comboParentEdit);
-	      comboTab.setPane(comboForm);
 	      //add tabs
 	      topTabSet.addTab(gridTab); 
 	      topTabSet.addTab(addTab); 
 	      topTabSet.addTab(editTab); 
-	      topTabSet.addTab(comboTab); 
 	      
 		  topTabSet.disableTab(2);
 		  
@@ -414,22 +468,7 @@ public class Dashboard {
 				topTabSet.enableTab(2);
 				ListGridRecord user = event.getRecord();
 				// create datasource
-				String[] editFormFields = {"id", "firstname", "lastname","parentInfo", "age", "phoneNum", "email"};
-				editForm.setDataSource(new UsersDS(editFormFields, Type.FORM, Integer.parseInt(user.getAttribute("id")), new ValueCallback() {
-					
-					@Override
-					public void execute(String value) {
-						// TODO Auto-generated method stub
-						SC.say("Success", "Updated user info successfully!");
-						topTabSet.selectTab(0);
-						topTabSet.disableTab(2);
-						//reset form from datasource
-						
-						//reset manually
-						clearEditForm();
-						usersGrid.invalidateCache();
-					}
-				}));
+				editFormDS.setDSID(Integer.parseInt(user.getAttribute("id")));
 				editForm.setSaveOperationType(DSOperationType.FETCH);
 				editForm.fetchData();
 				//

@@ -30,6 +30,10 @@ public class UsersDS extends GwtRpcDataSource {
 	
 	private int id;
 	
+	public void setDSID(int id) {
+		this.id = id;
+	}
+	
 	private String searchValue = "";
 	
 	public void setSearchValue (String searchValue) {
