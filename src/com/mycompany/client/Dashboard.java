@@ -130,21 +130,6 @@ public class Dashboard {
         topTabSet.setWidth("30%");  
         topTabSet.setHeight("80%");  
   
-        // text Area
-        Tab textTab = new Tab("TextArea");
-        
-        DynamicForm form = new DynamicForm();  
-        form.setWidth100();  
-        form.setHeight100();  
-		
-		textAreaItem = new TextAreaItem("textAreaItem");  
-        textAreaItem.setTitle("JSON");  
-        textAreaItem.setWidth("100%");  
-        textAreaItem.setHeight("100%");  
-        form.setFields(textAreaItem);
-        
-        textTab.setPane(form); 
-        
         // Grid
         Tab gridTab = new Tab("Grid"); 
         
@@ -168,11 +153,6 @@ public class Dashboard {
 	      ListGridField age = new ListGridField("age", "Age", 100);  
 	      age.setType(ListGridFieldType.INTEGER);  
 	      age.setAlign(Alignment.CENTER);
-//	      ListGridField phoneNum = new ListGridField("phoneNum", "Phone Number", 200);   
-//	      phoneNum.setAlign(Alignment.CENTER);
-//	      phoneNum.setType(ListGridFieldType.PHONENUMBER);  
-//	      ListGridField email = new ListGridField("email", "Email");   
-//	      email.setAlign(Alignment.CENTER);
 
 	      usersGrid.setWidth100();
 	      usersGrid.setHeight100();
@@ -360,7 +340,7 @@ public class Dashboard {
 	      topTabSet.addTab(gridTab); 
 	      topTabSet.addTab(addTab); 
 	      topTabSet.addTab(editTab); 
-//	      topTabSet.addTab(textTab);  
+	      
 		  topTabSet.disableTab(2);
 	      
 	      // define double click
@@ -379,14 +359,12 @@ public class Dashboard {
 					public void execute(String value) {
 						// TODO Auto-generated method stub
 						SC.say("Success", "Updated user info successfully!");
-						// TODO Auto-generated method stub
 						topTabSet.selectTab(0);
 						topTabSet.disableTab(2);
 						//reset form from datasource
 						
 						//reset manually
 						clearEditForm();
-						// usersGrid.setFetchOperation("fetch");
 						usersGrid.invalidateCache();
 					}
 				}));
