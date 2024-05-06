@@ -22,7 +22,8 @@ public class UsersDS extends GwtRpcDataSource {
 	
 	enum Type {
 		GRID,
-		FORM
+		FORM,
+		COMBO
 	}
 	
 	Type type;

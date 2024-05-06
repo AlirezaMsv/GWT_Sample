@@ -9,7 +9,7 @@ public class User implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public String firstname, lastname, phoneNum, email, password;
+	public String firstname, lastname, phoneNum, email, password, parentName, parentID;
 	
 	public String getName() {
 		return this.firstname + " " + this.lastname;

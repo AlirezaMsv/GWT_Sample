@@ -14,6 +14,7 @@ import com.smartgwt.client.widgets.events.ClickHandler;
 import com.smartgwt.client.widgets.events.MouseDownEvent;
 import com.smartgwt.client.widgets.events.MouseDownHandler;
 import com.smartgwt.client.widgets.form.DynamicForm;
+import com.smartgwt.client.widgets.form.fields.ComboBoxItem;
 import com.smartgwt.client.widgets.form.fields.IntegerItem;
 import com.smartgwt.client.widgets.form.fields.PasswordItem;
 import com.smartgwt.client.widgets.form.fields.TextAreaItem;
@@ -52,19 +53,22 @@ public class Dashboard {
 	private static TabSet topTabSet;
 	private static boolean visible = false;
 
-	// form items
+	// edit form items
 	private static TextItem txtIDEdit;
 	private static TextItem txtFirstnameEdit;
 	private static TextItem txtLastnameEdit;
 	private static TextItem txtEmailEdit;
 	private static IntegerItem txtAgeEdit;
 	private static TextItem txtPhoneNumEdit;
+	private static ComboBoxItem comboParentEdit;
+	// create form items
 	private static TextItem txtFirstnameCreate;
 	private static TextItem txtLastnameCreate;
 	private static TextItem txtEmailCreate;
 	private static IntegerItem txtAgeCreate;
 	private static TextItem txtPhoneNumCreate;
 	private static PasswordItem txtPasswordCreate;
+	// buttons
 	private static IButton createBtn;
 	private static IButton editBtn;
 	private static IButton cancelBtnEdit;
@@ -117,17 +121,17 @@ public class Dashboard {
 	}
 	
 	private static Widget getGrid() {
-		if (topTabSet != null)
-		{
-			usersGrid.invalidateCache();
-			return topTabSet;
-		}
+//		if (topTabSet != null)
+//		{
+//			usersGrid.invalidateCache();
+//			return topTabSet;
+//		}
 		
 		topTabSet = new TabSet();
 		usersGrid = new ListGrid();
 		
         topTabSet.setTabBarPosition(Side.TOP);  
-        topTabSet.setWidth("30%");  
+        topTabSet.setWidth("45%");  
         topTabSet.setHeight("80%");  
   
         // Grid
@@ -146,19 +150,24 @@ public class Dashboard {
 	      
 	      ListGridField idfield = new ListGridField("id");  
 	      idfield.setHidden(true);
-	      ListGridField firstname = new ListGridField("firstname", "Firstname", 150);  
+	      ListGridField parentIDfield = new ListGridField("parentID", "Parent ID", 80);  
+	      parentIDfield.setAlign(Alignment.CENTER);
+//	      parentIDfield.setHidden(true);
+	      ListGridField firstname = new ListGridField("firstname", "Firstname", 140);  
 	      firstname.setAlign(Alignment.CENTER);
-	      ListGridField lastname = new ListGridField("lastname", "Lastname", 150);   
+	      ListGridField lastname = new ListGridField("lastname", "Lastname", 140);   
 	      lastname.setAlign(Alignment.CENTER);
-	      ListGridField age = new ListGridField("age", "Age", 100);  
+	      ListGridField age = new ListGridField("age", "Age", 80);  
 	      age.setType(ListGridFieldType.INTEGER);  
 	      age.setAlign(Alignment.CENTER);
+	      ListGridField parentName = new ListGridField("parentName", "Parent", 200);
+	      parentName.setAlign(Alignment.CENTER);
 
 	      usersGrid.setWidth100();
 	      usersGrid.setHeight100();
 	      
-	      usersGrid.setFields(rowNum, firstname, lastname, age);  
-	      String[] gridFields = {"id", "firstname", "lastname", "age"};
+	      usersGrid.setFields(rowNum, firstname, lastname, parentName, parentIDfield, age);  
+	      String[] gridFields = {"id", "parentID", "firstname", "lastname", "parentName", "age"};
 	      UsersDS gridDS = new UsersDS(gridFields, Type.GRID, new ValueCallback() {
 			
 			@Override
@@ -206,6 +215,7 @@ public class Dashboard {
 	      txtAgeEdit.setKeyPressFilter("[0-9]");
 	      txtPhoneNumEdit = new TextItem("phoneNum", "Phone Number:");
 	      txtEmailEdit = new TextItem("email", "Email:");
+	      comboParentEdit = new ComboBoxItem("parentInfo", "Parent");
 	      VLayout btns = new VLayout();
 	      btns.setMembersMargin(15);
 	      editBtn = new IButton("Edit");
@@ -249,7 +259,7 @@ public class Dashboard {
 	      btns.addMember(editBtn);
 	      btns.addMember(cancelBtnEdit);
 	      
-	      editForm.setFields(txtIDEdit, txtFirstnameEdit, txtLastnameEdit, txtAgeEdit, 
+	      editForm.setFields(txtIDEdit, txtFirstnameEdit, txtLastnameEdit, comboParentEdit, txtAgeEdit, 
 	    		  txtPhoneNumEdit, txtEmailEdit);
 	        
 	      editLayout.addMember(editForm);
@@ -352,7 +362,7 @@ public class Dashboard {
 				topTabSet.enableTab(2);
 				ListGridRecord user = event.getRecord();
 				// create datasource
-				String[] editFormFields = {"id", "firstname", "lastname", "age", "phoneNum", "email"};
+				String[] editFormFields = {"id", "firstname", "lastname","parentInfo", "age", "phoneNum", "email"};
 				editForm.setDataSource(new UsersDS(editFormFields, Type.FORM, Integer.parseInt(user.getAttribute("id")), new ValueCallback() {
 					
 					@Override

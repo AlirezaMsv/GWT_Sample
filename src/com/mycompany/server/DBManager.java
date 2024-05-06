@@ -92,7 +92,7 @@ public class DBManager {
 
     public static ArrayList<HashMap<String, String>> fetchUsers(Integer start, Integer end) {
     	// SQL query to fetch all rows
-    	String query = "SELECT id, firstname, lastname, age FROM usersinfo LIMIT " + start + " , " + (end - start);
+    	String query = "SELECT id, firstname, lastname, parentID, parentName,  age FROM usersinfo LIMIT " + start + " , " + (end - start);
         ArrayList<HashMap<String, String>> res = new ArrayList<HashMap<String,String>>();
         
         try (Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) 
@@ -112,6 +112,8 @@ public class DBManager {
             	row.put("id", rs.getString("id"));
             	row.put("firstname", rs.getString("firstname"));
             	row.put("lastname", rs.getString("lastname"));
+            	row.put("parentName", rs.getString("parentName"));
+            	row.put("parentID", rs.getString("parentID"));
             	row.put("age", rs.getString("age"));
             	res.add(row);
             }
@@ -145,6 +147,8 @@ public class DBManager {
                         	row.put("age", resultSet.getString("age"));
                         	row.put("email", resultSet.getString("email"));
                         	row.put("phoneNum", resultSet.getString("phoneNum"));
+                        	row.put("parentInfo", resultSet.getString("parentName") == null ? "" :
+                        			resultSet.getString("parentName") + " - " + resultSet.getString("parentID"));
                         	return row;
                     	}	
                     	return null;
