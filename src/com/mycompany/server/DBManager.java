@@ -105,7 +105,7 @@ public class DBManager {
 
     public static ArrayList<HashMap<String, String>> fetchUsers(Integer start, Integer end) {
     	// SQL query to fetch all rows
-    	String query = "SELECT id, firstname, lastname, parentID, parentName,  age FROM usersinfo LIMIT " + start + " , " + (end - start);
+    	String query = "SELECT SQL_CALC_FOUND_ROWS id, firstname, lastname, parentID, parentName,  age FROM usersinfo LIMIT " + start + " , " + (end - start);
         ArrayList<HashMap<String, String>> res = new ArrayList<HashMap<String,String>>();
         
         try (Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) 

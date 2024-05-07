@@ -126,11 +126,11 @@ public class Dashboard {
 	}
 	
 	private static Widget getGrid() {
-//		if (topTabSet != null)
-//		{
-//			usersGrid.invalidateCache();
-//			return topTabSet;
-//		}
+		if (topTabSet != null)
+		{
+			usersGrid.invalidateCache();
+			return topTabSet;
+		}
 		
 		topTabSet = new TabSet();
 		usersGrid = new ListGrid();
@@ -202,6 +202,7 @@ public class Dashboard {
 				}
 			}
 		});
+	      
 	      gridTab.setPane(usersGrid);  
 	  	      
 	      //edit tab
