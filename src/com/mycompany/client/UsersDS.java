@@ -102,8 +102,8 @@ public class UsersDS extends GwtRpcDataSource {
 				@Override
 				public void onSuccess(ArrayList<HashMap<String, String>> result) {
 					//grid
-					response.setTotalRows(Integer.parseInt(result.get(0).get("n")));
-					result.remove(0);
+					response.setTotalRows(Integer.parseInt(result.get(result.size() - 1).get("n")));
+					result.remove(result.size() - 1);
 					setGridData(result, response);
 					// process response
 					processResponse(requestId, response);
@@ -138,74 +138,25 @@ public class UsersDS extends GwtRpcDataSource {
 				
 			});
 		}
-		else if (type == Type.COMBOALL) {
+		
+		else if (type == Type.COMBOALL || type == Type.COMBOOTHERS) {
 			if (request.getStartRow() == null || request.getEndRow() == null ) {
 				request.setStartRow(0);
 				request.setEndRow(100);
 			}
-			GWT.log("start: " + request.getStartRow());
-			GWT.log("len: " + (request.getEndRow() - request.getStartRow()));
-			GWT.log("bia: " + searchValue);
 			// fetch users
 			RPCManager.setPromptStyle(PromptStyle.CURSOR);
-			usersService.fetchAllCombo(request.getStartRow(), request.getEndRow(), searchValue, new AsyncCallback<ArrayList<HashMap<String, String>>>() {			
+			usersService.fetchCombo(type == Type.COMBOOTHERS ? id : -1, request.getStartRow(), request.getEndRow(), searchValue, new AsyncCallback<ArrayList<HashMap<String, String>>>() {			
 				@Override
 				public void onSuccess(ArrayList<HashMap<String, String>> result) {
 					//grid
-					response.setTotalRows(result.size() > 0 ? Integer.parseInt(result.get(0).get("n")) : 1);
-					result.remove(0);
-					if (result.size() > 0) {
-						setGridData(result, response);
-					}
-					else {
-						HashMap<String, String> map = new HashMap<String, String>();
-						map.put("id", "-1");
-						map.put("name", "No Values");
-						ArrayList<HashMap<String, String>> arr = new ArrayList<HashMap<String, String>>();
-						arr.add(map);
-						setGridData(arr, response);
-					}
+					response.setTotalRows(result.size() > 0 ? Integer.parseInt(result.get(result.size() - 1).get("n")) : 1);
+					result.remove(result.size() - 1);
+					setGridData(result, response);
 					// process response
 					processResponse(requestId, response);
-				}
-				
-				@Override
-				public void onFailure(Throwable caught) {
-					// TODO Auto-generated method stub
-					SC.say("Error!");
-				}
-			});
-		}
-		else if (type == Type.COMBOOTHERS) {
-			if (request.getStartRow() == null || request.getEndRow() == null ) {
-				request.setStartRow(0);
-				request.setEndRow(100);
-			}
-			GWT.log("start: " + request.getStartRow());
-			GWT.log("len: " + (request.getEndRow() - request.getStartRow()));
-			GWT.log("bia: " + searchValue);
-			// fetch users
-			RPCManager.setPromptStyle(PromptStyle.CURSOR);
-			usersService.fetchOthersCombo(id, request.getStartRow(), request.getEndRow(), searchValue, new AsyncCallback<ArrayList<HashMap<String, String>>>() {			
-				@Override
-				public void onSuccess(ArrayList<HashMap<String, String>> result) {
-					//grid
-					response.setTotalRows(result.size() > 0 ? Integer.parseInt(result.get(0).get("n")) : 1);
-					result.remove(0);
-					if (result.size() > 0) {
-						setGridData(result, response);
-					}
-					else {
-						HashMap<String, String> map = new HashMap<String, String>();
-						map.put("id", "-1");
-						map.put("name", "No Values");
-						ArrayList<HashMap<String, String>> arr = new ArrayList<HashMap<String, String>>();
-						arr.add(map);
-						setGridData(arr, response);
-					}
-					// process response
-					processResponse(requestId, response);
-					cb.execute("");
+					if (cb != null)
+						cb.execute("");
 				}
 				
 				@Override
@@ -229,12 +180,14 @@ public class UsersDS extends GwtRpcDataSource {
 	protected void executeAdd(String requestId, DSRequest request, DSResponse response) {
 		// TODO Auto-generated method stub
 		Record record = request.getAttributeAsRecord("data");
+		String PID = record.getAttributeAsString("parentInfo");
 		User user = new User(record.getAttributeAsString("firstname"), 
 				record.getAttributeAsString("lastname"), 
 				record.getAttributeAsString("phoneNum"), 
 				record.getAttributeAsString("email"), 
 				record.getAttributeAsString("password"), 
 				record.getAttributeAsString("age"));
+		user.setParentID(PID);
 		GWT.log(user.toString());
 		usersService.addUser(user, new AsyncCallback<Boolean>() {
 			
@@ -261,11 +214,14 @@ public class UsersDS extends GwtRpcDataSource {
 	protected void executeUpdate(String requestId, DSRequest request, DSResponse response) {
 		// TODO Auto-generated method stub
 		Record record = request.getAttributeAsRecord("data");
+		String PID = record.getAttributeAsString("parentInfo");
 		User user = new User(record.getAttributeAsString("firstname"), 
 				record.getAttributeAsString("lastname"), 
 				record.getAttributeAsString("phoneNum"), 
 				record.getAttributeAsString("email"), 
-				record.getAttributeAsString("age"));
+				record.getAttributeAsString("age")
+		);
+		user.setParentID(PID);
 		GWT.log(user.toString());
 		usersService.updateUser(user, id, new AsyncCallback<Boolean>() {
 

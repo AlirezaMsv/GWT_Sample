@@ -69,8 +69,18 @@ public class DBManager {
 
             // Connect to the database
             try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+            	String parentQuery = "SELECT CONCAT(firstname, \" \", lastname) AS parentName FROM usersinfo WHERE id = ?";
+            	String pn = "";
+            	try (PreparedStatement statement = conn.prepareStatement(parentQuery)) {
+                    statement.setString(1, user.parentID);
+                    try (ResultSet resultSet = statement.executeQuery()) {
+                    	if (resultSet.next()) {
+                    		pn = resultSet.getString("parentName");
+                    	}
+                    }
+                }
                 // Prepare SQL statement
-                String sql = "INSERT INTO usersInfo (firstname, lastname, age, phoneNum, password, email) values (? , ? , ? , ? , ? , ?)";
+                String sql = "INSERT INTO usersInfo (firstname, lastname, age, phoneNum, password, email, parentID, parentName) values (? , ? , ? , ? , ? , ? , ? , ?)";
                 try (PreparedStatement statement = conn.prepareStatement(sql)) {
                     statement.setString(1, user.firstname);
                     statement.setString(2, user.lastname);
@@ -78,6 +88,9 @@ public class DBManager {
                     statement.setString(4, user.phoneNum);
                     statement.setString(5, hashPassword(user.password));
                     statement.setString(6, user.email);
+                    statement.setString(7, user.parentID);
+                    statement.setString(8, pn);
+
 
                     // Execute query
                     System.out.println(statement.executeUpdate());
@@ -99,13 +112,7 @@ public class DBManager {
         {
         	Statement stmt = con.createStatement();
             
-        	ResultSet n = stmt.executeQuery("SELECT count(*) AS n from usersinfo");
-        	if (n.next()){
-        		HashMap<String, String> row = new HashMap<String, String>();
-        		row.put("n", n.getInt("n")+"");
-        		res.add(row);
-        	}
-            ResultSet rs = stmt.executeQuery(query);
+        	ResultSet rs = stmt.executeQuery(query);
             // Iterate through the result set
             while (rs.next()) {
             	HashMap<String, String> row = new HashMap<String, String>();
@@ -117,6 +124,12 @@ public class DBManager {
             	row.put("age", rs.getString("age"));
             	res.add(row);
             }
+            ResultSet n = stmt.executeQuery("SELECT FOUND_ROWS() AS n;");
+        	if (n.next()){
+        		HashMap<String, String> row = new HashMap<String, String>();
+        		row.put("n", n.getInt("n")+"");
+        		res.add(row);
+        	}
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -147,8 +160,9 @@ public class DBManager {
                         	row.put("age", resultSet.getString("age"));
                         	row.put("email", resultSet.getString("email"));
                         	row.put("phoneNum", resultSet.getString("phoneNum"));
-                        	row.put("parentInfo", resultSet.getString("parentName") == null ? "" :
-                        			resultSet.getString("parentName") + " - " + resultSet.getString("parentID"));
+                        	row.put("parentInfo", resultSet.getString("parentID"));
+//                        	row.put("parentInfo", resultSet.getString("parentName") == null ? "" :
+//                        			resultSet.getString("parentName") + " - " + resultSet.getString("parentID"));
                         	return row;
                     	}	
                     	return null;
@@ -169,15 +183,27 @@ public class DBManager {
 
             // Connect to the database
             try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+            	String parentQuery = "SELECT CONCAT(firstname, \" \", lastname) AS parentName FROM usersinfo WHERE id = ?";
+            	String pn = "";
+            	try (PreparedStatement statement = conn.prepareStatement(parentQuery)) {
+                    statement.setString(1, user.parentID);
+                    try (ResultSet resultSet = statement.executeQuery()) {
+                    	if (resultSet.next()) {
+                    		pn = resultSet.getString("parentName");
+                    	}
+                    }
+                }
                 // Prepare SQL statement
-                String sql = "UPDATE usersInfo SET firstname = ? , lastname = ? , age = ? , phoneNum = ? , email = ? WHERE id = ?";
+                String sql = "UPDATE usersInfo SET firstname = ? , lastname = ? , age = ? , phoneNum = ? , email = ? , parentID = ? , parentName = ? WHERE id = ?";
                 try (PreparedStatement statement = conn.prepareStatement(sql)) {
                     statement.setString(1, user.firstname);
                     statement.setString(2, user.lastname);
                     statement.setString(3, user.age+"");
                     statement.setString(4, user.phoneNum);
                     statement.setString(5, user.email);
-                    statement.setString(6, id+"");
+                    statement.setString(6, user.parentID);
+                    statement.setString(7, pn);
+                    statement.setString(8, id+"");
 
                     // Execute query
                     System.out.println(statement.executeUpdate());
@@ -216,25 +242,22 @@ public class DBManager {
         }
     }
     
-    public static ArrayList<HashMap<String, String>> fetchAllCombo(Integer start, Integer end, String search){
+   
+    
+    public static ArrayList<HashMap<String, String>> fetchCombo(Integer id, Integer start, Integer end, String search){
     	// SQL query to fetch all rows
-//    	String query = "SELECT id, firstname, lastname FROM usersinfo LIMIT " + start + " , " + (end - start);
-    	String query = "SELECT id, firstname, lastname, parentName, parentID FROM usersinfo WHERE firstname LIKE '%" + search +
-    			"%' OR lastname LIKE '%" + search + "%' OR id LIKE '%" + search + "%' LIMIT " + start + " , " + (end - start);
-
+    	String query = "SELECT SQL_CALC_FOUND_ROWS id, firstname, lastname, parentName, parentID FROM usersinfo WHERE id <> " + id + " AND (firstname LIKE '%" + search +
+    			"%' OR lastname LIKE '%" + search + "%' OR id LIKE '%" + search + "%') LIMIT " + start + " , " + (end - start)
+    			;
+    	
         ArrayList<HashMap<String, String>> res = new ArrayList<HashMap<String,String>>();
         
         try (Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) 
         {
         	Statement stmt = con.createStatement();
             
-        	ResultSet n = stmt.executeQuery("SELECT count(*) AS n from usersinfo");
-        	if (n.next()){
-        		HashMap<String, String> row = new HashMap<String, String>();
-        		row.put("n", n.getInt("n")+"");
-        		res.add(row);
-        	}
             ResultSet rs = stmt.executeQuery(query);
+         
             // Iterate through the result set
             while (rs.next()) {
             	HashMap<String, String> row = new HashMap<String, String>();
@@ -242,38 +265,14 @@ public class DBManager {
             	row.put("name", rs.getString("firstname") + " " + rs.getString("lastname") + " ( " + rs.getString("id") + " )");
             	res.add(row);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        
-        return res;
-    }
-    
-    public static ArrayList<HashMap<String, String>> fetchOthersCombo(Integer id, Integer start, Integer end, String search){
-    	// SQL query to fetch all rows
-    	String query = "SELECT id, firstname, lastname, parentName, parentID FROM usersinfo WHERE id <> " + id + " AND (firstname LIKE '%" + search +
-    			"%' OR lastname LIKE '%" + search + "%' OR id LIKE '%" + search + "%') LIMIT " + start + " , " + (end - start);
-    	
-
-        ArrayList<HashMap<String, String>> res = new ArrayList<HashMap<String,String>>();
-        
-        try (Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) 
-        {
-        	Statement stmt = con.createStatement();
-            
-        	ResultSet n = stmt.executeQuery("SELECT count(*) AS n from usersinfo");
-        	if (n.next()){
-        		HashMap<String, String> row = new HashMap<String, String>();
-        		row.put("n", (n.getInt("n") - 1)+"");
-        		res.add(row);
-        	}
-            ResultSet rs = stmt.executeQuery(query);
-            // Iterate through the result set
-            while (rs.next()) {
-            	HashMap<String, String> row = new HashMap<String, String>();
-            	row.put("id", rs.getString("id"));
-            	row.put("name", rs.getString("firstname") + " " + rs.getString("lastname") + " ( " + rs.getString("id") + " )");
-            	res.add(row);
+         // Get the number of rows without running the query again
+            try (ResultSet n = stmt.executeQuery("SELECT FOUND_ROWS() AS n;")) {
+                if (n.next()) {
+                    int rowCount = n.getInt("n");
+                    HashMap<String, String> row = new HashMap<String, String>();
+                	row.put("n", rowCount+"");
+                	res.add(row);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();

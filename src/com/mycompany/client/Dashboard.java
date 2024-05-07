@@ -249,6 +249,7 @@ public class Dashboard {
 			}
 		});
 	      comboParentEdit.setOptionDataSource(comboEditDS);
+	      comboParentEdit.setEmptyDisplayValue("No Value");
 	      ListGridField idEditCombo = new ListGridField("id", "id");  
 	      idEditCombo.setAlign(Alignment.CENTER);
 	      ListGridField nameEditCombo = new ListGridField("name", "name");

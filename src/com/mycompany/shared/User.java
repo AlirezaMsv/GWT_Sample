@@ -26,32 +26,38 @@ public class User implements Serializable {
         this.age = Short.parseShort(age);
     }
 
-	public User(String firstname, String lastname, String phoneNum, String email, String password, String age, String parentName, String parentID) {
-        this.firstname = firstname;
-        this.lastname = lastname;
-        this.phoneNum = phoneNum;
-        this.email = email;
-        this.password = password;
-        this.age = Short.parseShort(age);
-        this.parentID = parentID;
-        this.parentName = parentName;
-    }
+//	public User(String firstname, String lastname, String phoneNum, String email, String password, String age, String parentName, String parentID) {
+//        this.firstname = firstname;
+//        this.lastname = lastname;
+//        this.phoneNum = phoneNum;
+//        this.email = email;
+//        this.password = password;
+//        this.age = Short.parseShort(age);
+//        this.parentID = parentID;
+//        this.parentName = parentName;
+//    }
 	
-	
-	public User(String firstname, String lastname, String phoneNum, String email, String password, String age, String parentID) {
-        this.firstname = firstname;
-        this.lastname = lastname;
-        this.phoneNum = phoneNum;
-        this.email = email;
-        this.password = password;
-        this.age = Short.parseShort(age);
-        this.parentID = parentID;
-    }
 	
 	public User() {
 		// TODO Auto-generated constructor stub
 	}
 	
+	public String getParentName() {
+		return parentName;
+	}
+
+	public void setParentName(String parentName) {
+		this.parentName = parentName;
+	}
+
+	public String getParentID() {
+		return parentID;
+	}
+
+	public void setParentID(String parentID) {
+		this.parentID = parentID;
+	}
+
 	public User(String firstname, String lastname, String phoneNum, String email, String age) {
         this.firstname = firstname;
         this.lastname = lastname;
