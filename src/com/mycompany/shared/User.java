@@ -25,6 +25,28 @@ public class User implements Serializable {
         this.password = password;
         this.age = Short.parseShort(age);
     }
+
+	public User(String firstname, String lastname, String phoneNum, String email, String password, String age, String parentName, String parentID) {
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.phoneNum = phoneNum;
+        this.email = email;
+        this.password = password;
+        this.age = Short.parseShort(age);
+        this.parentID = parentID;
+        this.parentName = parentName;
+    }
+	
+	
+	public User(String firstname, String lastname, String phoneNum, String email, String password, String age, String parentID) {
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.phoneNum = phoneNum;
+        this.email = email;
+        this.password = password;
+        this.age = Short.parseShort(age);
+        this.parentID = parentID;
+    }
 	
 	public User() {
 		// TODO Auto-generated constructor stub
@@ -48,6 +70,8 @@ public class User implements Serializable {
 		str.append("email\t").append(email).append("\n");
 		str.append("password\t").append(password).append("\n");
 		str.append("phoneNum\t").append(phoneNum).append("\n");
+		str.append("parentName\t").append(parentName).append("\n");
+		str.append("parentID\t").append(parentID).append("\n");
 		return str.toString();
 	}
 

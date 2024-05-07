@@ -240,7 +240,14 @@ public class Dashboard {
 	      // create combo 
 	      comboParentEdit = new ComboBoxItem("parentInfo", "Parent Info:");
 	      String[] comboEditFields = {"id", "name"};
-	      UsersDS comboEditDS = new UsersDS(comboEditFields, Type.COMBO);
+	      UsersDS comboEditDS = new UsersDS(comboEditFields, Type.COMBOOTHERS, new ValueCallback() {
+			
+			@Override
+			public void execute(String value) {
+				// TODO Auto-generated method stub+
+				comboParentEdit.setDisabled(false);
+			}
+		});
 	      comboParentEdit.setOptionDataSource(comboEditDS);
 	      ListGridField idEditCombo = new ListGridField("id", "id");  
 	      idEditCombo.setAlign(Alignment.CENTER);
@@ -251,7 +258,7 @@ public class Dashboard {
 	      comboParentEdit.setDisplayField("name");
 	      comboParentEdit.setFetchDelay(1000);
 	      comboParentEdit.setShowPending(true); 
-	      comboParentEdit.setAutoFetchData(true); 
+//	      comboParentEdit.setAutoFetchData(true); 
 //	      comboParentEdit.setPickListPlacement("fillScreen");
 	      comboParentEdit.addChangedHandler(new ChangedHandler() {
 			
@@ -361,7 +368,7 @@ public class Dashboard {
 	      // Combo Create
 	      comboParentCreate = new ComboBoxItem("parentInfo", "Parent Info:");
 	      String[] comboCreateFields = {"id", "name"};
-	      UsersDS comboCreateDS = new UsersDS(comboCreateFields, Type.COMBO);
+	      UsersDS comboCreateDS = new UsersDS(comboCreateFields, Type.COMBOALL);
 	      comboParentCreate.setOptionDataSource(comboCreateDS);
 	      ListGridField idCreateCombo = new ListGridField("id", "id");  
 	      idCreateCombo.setAlign(Alignment.CENTER);
@@ -372,7 +379,7 @@ public class Dashboard {
 	      comboParentCreate.setDisplayField("name");
 	      comboParentCreate.setFetchDelay(1000);
 	      comboParentCreate.setShowPending(true); 
-	      comboParentCreate.setAutoFetchData(true); 
+//	      comboParentCreate.setAutoFetchData(true); 
 //	      comboParentEdit.setPickListPlacement("fillScreen");
 	      comboParentCreate.addChangedHandler(new ChangedHandler() {
 			
@@ -469,6 +476,9 @@ public class Dashboard {
 				ListGridRecord user = event.getRecord();
 				// create datasource
 				editFormDS.setDSID(Integer.parseInt(user.getAttribute("id")));
+				comboEditDS.setDSID(Integer.parseInt(user.getAttribute("id")));
+				comboParentEdit.setDisabled(true);
+				comboParentEdit.fetchData();
 				editForm.setSaveOperationType(DSOperationType.FETCH);
 				editForm.fetchData();
 				//
@@ -490,20 +500,22 @@ public class Dashboard {
 	}
 	
 	private static void clearEditForm() {
-		txtIDEdit.setValue("");
-		txtFirstnameEdit.setValue("");
-		txtLastnameEdit.setValue("");
-		txtAgeEdit.setValue("");
-		txtPhoneNumEdit.setValue("");
-		txtEmailEdit.setValue("");
+		txtIDEdit.clearValue();
+		txtFirstnameEdit.clearValue();
+		txtLastnameEdit.clearValue();
+		txtAgeEdit.clearValue();
+		txtPhoneNumEdit.clearValue();
+		txtEmailEdit.clearValue();
+		comboParentEdit.clearValue();
 	}
 	
 	private static void clearCreateForm() {
-		txtFirstnameCreate.setValue("");
-		txtLastnameCreate.setValue("");
-		txtAgeCreate.setValue("");
-		txtPhoneNumCreate.setValue("");
-		txtEmailCreate.setValue("");
+		txtFirstnameCreate.clearValue();
+		txtLastnameCreate.clearValue();
+		txtAgeCreate.clearValue();
+		txtPhoneNumCreate.clearValue();
+		txtEmailCreate.clearValue();
+		comboParentCreate.clearValue();
 	}
 	
 	public static void show() {

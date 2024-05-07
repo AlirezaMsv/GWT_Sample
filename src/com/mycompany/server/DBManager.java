@@ -250,6 +250,35 @@ public class DBManager {
     }
     
     public static ArrayList<HashMap<String, String>> fetchOthersCombo(Integer id, Integer start, Integer end, String search){
-    	return null;
+    	// SQL query to fetch all rows
+    	String query = "SELECT id, firstname, lastname, parentName, parentID FROM usersinfo WHERE id <> " + id + " AND (firstname LIKE '%" + search +
+    			"%' OR lastname LIKE '%" + search + "%' OR id LIKE '%" + search + "%') LIMIT " + start + " , " + (end - start);
+    	
+
+        ArrayList<HashMap<String, String>> res = new ArrayList<HashMap<String,String>>();
+        
+        try (Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) 
+        {
+        	Statement stmt = con.createStatement();
+            
+        	ResultSet n = stmt.executeQuery("SELECT count(*) AS n from usersinfo");
+        	if (n.next()){
+        		HashMap<String, String> row = new HashMap<String, String>();
+        		row.put("n", (n.getInt("n") - 1)+"");
+        		res.add(row);
+        	}
+            ResultSet rs = stmt.executeQuery(query);
+            // Iterate through the result set
+            while (rs.next()) {
+            	HashMap<String, String> row = new HashMap<String, String>();
+            	row.put("id", rs.getString("id"));
+            	row.put("name", rs.getString("firstname") + " " + rs.getString("lastname") + " ( " + rs.getString("id") + " )");
+            	res.add(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return res;
     }
 }
