@@ -24,13 +24,20 @@ public class UsersDS extends GwtRpcDataSource {
 		GRID,
 		FORM,
 		COMBOALL,
-		COMBOOTHERS
+		COMBOOTHERS,
+		TREE
 	}
 	
 	Type type;
 	
 	private int id;
 	
+	private int openedID;
+	
+	public void setOpenedID(int openedID) {
+		this.openedID = openedID;
+	}
+
 	public void setDSID(int id) {
 		this.id = id;
 	}
@@ -83,11 +90,17 @@ public class UsersDS extends GwtRpcDataSource {
 	public UsersDS(String[] fields, Type type, ValueCallback cb){
 		this.type = type;
 		this.cb = cb;
+		if (type.equals(Type.TREE)) {
+			this.setID("treeDS");
+		}
 		for (String i : fields) {
 			DataSourceField dt = new DataSourceField(i, FieldType.TEXT, i);
 			if (i.equals("id")) {
-				dt.setCanEdit(false);
 				dt.setPrimaryKey(true);
+			}
+			else if (i.equals("parentID") && type.equals(Type.TREE)) {
+				dt.setForeignKey("treeDS.parentID");
+		        // dt.setRootValue("-1");
 			}
 			this.addField(dt);
 		}
@@ -157,6 +170,28 @@ public class UsersDS extends GwtRpcDataSource {
 					processResponse(requestId, response);
 					if (cb != null)
 						cb.execute("");
+				}
+				
+				@Override
+				public void onFailure(Throwable caught) {
+					// TODO Auto-generated method stub
+					SC.say("Error!");
+				}
+			});
+		}
+		// handle tree fetch
+		else if (type.equals(Type.TREE)) {
+			// fetch users
+			RPCManager.setPromptStyle(PromptStyle.CURSOR);
+			usersService.fetchTree(openedID, request.getStartRow(), request.getEndRow(), new AsyncCallback<ArrayList<HashMap<String, String>>>() {			
+				@Override
+				public void onSuccess(ArrayList<HashMap<String, String>> result) {
+					//grid
+					response.setTotalRows(Integer.parseInt(result.get(result.size() - 1).get("n")));
+					result.remove(result.size() - 1);
+					setGridData(result, response);
+					// process response
+					processResponse(requestId, response);
 				}
 				
 				@Override

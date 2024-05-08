@@ -24,6 +24,7 @@ import com.smartgwt.client.widgets.form.fields.events.ChangedHandler;
 
 import java.util.ArrayList;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Timer;
 import com.smartgwt.client.types.Alignment;
@@ -45,6 +46,12 @@ import com.smartgwt.client.widgets.layout.HLayout;
 import com.smartgwt.client.widgets.layout.VLayout;
 import com.smartgwt.client.widgets.tab.Tab;
 import com.smartgwt.client.widgets.tab.TabSet;
+import com.smartgwt.client.widgets.tree.TreeGrid;
+import com.smartgwt.client.widgets.tree.TreeGridField;
+import com.smartgwt.client.widgets.tree.events.FolderClickEvent;
+import com.smartgwt.client.widgets.tree.events.FolderClickHandler;
+import com.smartgwt.client.widgets.tree.events.FolderOpenedEvent;
+import com.smartgwt.client.widgets.tree.events.FolderOpenedHandler;
 
 import jsinterop.annotations.JsMethod;
 
@@ -145,7 +152,7 @@ public class Dashboard {
         // Columns
 	      ListGridField rowNum = new ListGridField("itemNum", "Item No.");  
 	      rowNum.setAlign(Alignment.CENTER);
-	      rowNum.setWidth(80);  
+	      rowNum.setWidth(60);  
 	      rowNum.setCellFormatter(new CellFormatter() {  
 	          public String format(Object value, ListGridRecord record, int rowNum, int colNum) {  
 	              return rowNum+1 + "";  
@@ -153,8 +160,9 @@ public class Dashboard {
 	      });
 	      
 	      
-	      ListGridField idfield = new ListGridField("id");  
-	      idfield.setHidden(true);
+	      ListGridField idfield = new ListGridField("id", "ID", 60);  
+	      idfield.setAlign(Alignment.CENTER);
+//	      idfield.setHidden(true);
 	      ListGridField parentIDfield = new ListGridField("parentID", "Parent ID", 80);  
 	      parentIDfield.setAlign(Alignment.CENTER);
 //	      parentIDfield.setHidden(true);
@@ -165,13 +173,13 @@ public class Dashboard {
 	      ListGridField age = new ListGridField("age", "Age", 80);  
 	      age.setType(ListGridFieldType.INTEGER);  
 	      age.setAlign(Alignment.CENTER);
-	      ListGridField parentName = new ListGridField("parentName", "Parent", 200);
+	      ListGridField parentName = new ListGridField("parentName", "Parent", 150);
 	      parentName.setAlign(Alignment.CENTER);
 
 	      usersGrid.setWidth100();
 	      usersGrid.setHeight100();
 	      
-	      usersGrid.setFields(rowNum, firstname, lastname, parentName, parentIDfield, age);  
+	      usersGrid.setFields(rowNum, idfield, firstname, lastname, parentName, parentIDfield, age);  
 	      String[] gridFields = {"id", "parentID", "firstname", "lastname", "parentName", "age"};
 	      UsersDS gridDS = new UsersDS(gridFields, Type.GRID, new ValueCallback() {
 			
@@ -460,11 +468,113 @@ public class Dashboard {
 	      addLayout.addMember(btns);
 	      addTab.setPane(addLayout);
 	      
+	      // tree tab
+	      Tab treeTab = new Tab("Tree");
+	      
+	      final TreeGrid treeGrid = new TreeGrid();  
+//	      treeGrid.setLoadDataOnDemand(false);  
+	      treeGrid.setWidth100();  
+	      treeGrid.setHeight100();    
+//	      treeGrid.setNodeIcon("icons/16/person.png");  
+//	        treeGrid.setFolderIcon("icons/16/person.png"); 
+//	      treeGrid.setShowOpenIcons(false);  
+//	      treeGrid.setShowDropIcons(false);  
+//	      treeGrid.setShowNodeIcons(false);
+//	      treeGrid.setClosedIconSuffix("");  
+	      treeGrid.setShowFolderIcons(true);
+	      
+	      //columns
+	      TreeGridField icons = new TreeGridField("icons", "", 100);  
+	      icons.setAlign(Alignment.CENTER);
+	      
+	      
+	      TreeGridField idfieldTree = new TreeGridField("id", "ID" , 60);  
+	      idfieldTree.setAlign(Alignment.CENTER);
+//	      idfieldTree.setHidden(true);
+	      TreeGridField parentIDfieldTree = new TreeGridField("parentID", "Parent ID", 80);  
+	      parentIDfieldTree.setAlign(Alignment.CENTER);
+//	      parentIDfield.setHidden(true);
+	      TreeGridField firstnameTree = new TreeGridField("firstname", "Firstname", 120);  
+	      firstnameTree.setAlign(Alignment.CENTER);
+	      TreeGridField lastnameTree = new TreeGridField("lastname", "Lastname", 120);   
+	      lastnameTree.setAlign(Alignment.CENTER);
+	      TreeGridField ageTree = new TreeGridField("age", "Age", 80);  
+	      ageTree.setType(ListGridFieldType.INTEGER);  
+	      ageTree.setAlign(Alignment.CENTER);
+	      TreeGridField parentNameTree = new TreeGridField("parentName", "Parent", 150);
+	      parentNameTree.setAlign(Alignment.CENTER);
+	      
+	      treeGrid.setFields(icons, idfieldTree, firstnameTree, lastnameTree, parentNameTree
+	    		  , parentIDfieldTree, ageTree); 
+	      
+	      String[] treeFields = {"id", "parentID", "firstname", "lastname", "parentName", "age"};
+	      UsersDS treeDS = new UsersDS(treeFields, Type.TREE, new ValueCallback() {
+			
+				@Override
+				public void execute(String value) {
+					// TODO Auto-generated method stub
+					SC.say("Done", "Items removed successfully!");
+					treeGrid.invalidateCache();
+				}
+	      });
+
+	      treeGrid.addFolderOpenedHandler(e -> {
+	    	  treeDS.setOpenedID(Integer.parseInt(e.getNode().getAttribute("id")));
+	      });
+	      treeGrid.setDataSource(treeDS);
+//	      treeGrid.setDataSource(gridDS);
+	      treeGrid.setAutoFetchData(true); 
+	      treeGrid.setDataFetchMode(FetchMode.PAGED);
+	      treeGrid.setCanRemoveRecords(true);
+	      treeGrid.setSelectionType(SelectionStyle.SIMPLE);  
+	      treeGrid.setSelectionAppearance(SelectionAppearance.CHECKBOX);
+	      
+	      treeGrid.addSelectionUpdatedHandler(new SelectionUpdatedHandler() {
+				
+				@Override
+				public void onSelectionUpdated(SelectionUpdatedEvent event) {
+					// TODO Auto-generated method stub
+					if (treeGrid.getSelectedRecords().length > 0) {
+						trash.setVisible(true);
+					}
+					else {
+						trash.setVisible(false);
+						treeDS.clearSelectedIds();
+					}
+				}
+			});
+	      
+	      treeGrid.setShowSelectedIcons(true);  
+	      
+	   // define double click
+	      treeGrid.addCellDoubleClickHandler(new CellDoubleClickHandler() {
+			
+			@Override
+			public void onCellDoubleClick(CellDoubleClickEvent event) {
+				// TODO Auto-generated method stub
+				topTabSet.enableTab(2);
+				ListGridRecord user = event.getRecord();
+				// create datasource
+				SC.say(Integer.parseInt(user.getAttribute("id")) + "");
+				editFormDS.setDSID(Integer.parseInt(user.getAttribute("id")));
+				comboEditDS.setDSID(Integer.parseInt(user.getAttribute("id")));
+				comboParentEdit.setDisabled(true);
+				comboParentEdit.fetchData();
+				editForm.setSaveOperationType(DSOperationType.FETCH);
+				editForm.fetchData();
+				//
+				topTabSet.selectTab(2);
+			}
+		});
+	      
+	      treeTab.setPane(treeGrid);
 	      //add tabs
+	      
 	      topTabSet.addTab(gridTab); 
 	      topTabSet.addTab(addTab); 
 	      topTabSet.addTab(editTab); 
-	      
+	      topTabSet.addTab(treeTab); 
+	            
 		  topTabSet.disableTab(2);
 		  
 	      
@@ -477,6 +587,7 @@ public class Dashboard {
 				topTabSet.enableTab(2);
 				ListGridRecord user = event.getRecord();
 				// create datasource
+				SC.say(Integer.parseInt(user.getAttribute("id")) + "");
 				editFormDS.setDSID(Integer.parseInt(user.getAttribute("id")));
 				comboEditDS.setDSID(Integer.parseInt(user.getAttribute("id")));
 				comboParentEdit.setDisabled(true);

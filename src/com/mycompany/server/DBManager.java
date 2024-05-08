@@ -280,4 +280,44 @@ public class DBManager {
         
         return res;
     }
+
+    public static ArrayList<HashMap<String, String>> fetchTree(Integer row, Integer start, Integer end) {
+    	// SQL query to fetch all rows
+    	String query = "SELECT SQL_CALC_FOUND_ROWS id, firstname, lastname, parentID, parentName, age FROM usersinfo WHERE parentID " + 
+    	(row == 0 ? "IS NULL" : ("= " + row))
+    	+ " LIMIT " + start + " , " + (end - start);
+    	
+    	System.out.println("bia: " + query);
+    	
+        ArrayList<HashMap<String, String>> res = new ArrayList<HashMap<String,String>>();
+        
+        try (Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) 
+        {
+        	Statement stmt = con.createStatement();
+            
+        	ResultSet rs = stmt.executeQuery(query);
+            // Iterate through the result set
+            while (rs.next()) {
+            	HashMap<String, String> row1 = new HashMap<String, String>();
+            	row1.put("id", rs.getString("id"));
+            	row1.put("firstname", rs.getString("firstname"));
+            	row1.put("lastname", rs.getString("lastname"));
+            	row1.put("parentName", rs.getString("parentName"));
+            	row1.put("parentID", rs.getString("parentID"));
+            	row1.put("age", rs.getString("age"));
+            	res.add(row1);
+            }
+            ResultSet n = stmt.executeQuery("SELECT FOUND_ROWS() AS n;");
+        	if (n.next()){
+        		HashMap<String, String> row2 = new HashMap<String, String>();
+        		row2.put("n", n.getInt("n")+"");
+        		res.add(row2);
+        	}
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return res;
+	}
+
 }

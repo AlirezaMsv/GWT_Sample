@@ -46,5 +46,11 @@ public class UsersServiceImpl extends RemoteServiceServlet implements UsersServi
 		// TODO Auto-generated method stub
 		return DBManager.fetchCombo(id, start, end, search);
 	}
+
+	@Override
+	public ArrayList<HashMap<String, String>> fetchTree(Integer row, Integer start, Integer end) {
+		// TODO Auto-generated method stub
+		return DBManager.fetchTree(row, start, end);
+	}
 	
 }
