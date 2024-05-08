@@ -289,8 +289,6 @@ public class DBManager {
     	               (row == 0 ? "IS NULL" : ("= " + row)) +
     	               " LIMIT " + start + " , " + (end - start);
 
-    	System.out.println("bia: " + query);
-
     	ArrayList<HashMap<String, String>> res = new ArrayList<>();
 
     	try (Connection con = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {

@@ -35,6 +35,7 @@ import com.smartgwt.client.types.ListGridFieldType;
 import com.smartgwt.client.types.SelectionAppearance;
 import com.smartgwt.client.types.SelectionStyle;
 import com.smartgwt.client.types.Side;
+import com.smartgwt.client.widgets.grid.CellCSSTextCustomizer;
 import com.smartgwt.client.widgets.grid.CellFormatter;  
 import com.smartgwt.client.widgets.grid.ListGrid;  
 import com.smartgwt.client.widgets.grid.ListGridField;  
@@ -49,6 +50,7 @@ import com.smartgwt.client.widgets.tab.Tab;
 import com.smartgwt.client.widgets.tab.TabSet;
 import com.smartgwt.client.widgets.tree.TreeGrid;
 import com.smartgwt.client.widgets.tree.TreeGridField;
+import com.smartgwt.client.widgets.tree.TreeNode;
 import com.smartgwt.client.widgets.tree.events.FolderClickEvent;
 import com.smartgwt.client.widgets.tree.events.FolderClickHandler;
 import com.smartgwt.client.widgets.tree.events.FolderOpenedEvent;
@@ -478,32 +480,35 @@ public class Dashboard {
 	      treeGrid.setHeight100();    
 //	      treeGrid.setNodeIcon("icons/16/person.png");  
 //	        treeGrid.setFolderIcon("icons/16/person.png"); 
-//	      treeGrid.setShowOpenIcons(false);  
-//	      treeGrid.setShowDropIcons(false);  
-//	      treeGrid.setShowNodeIcons(false);
-//	      treeGrid.setClosedIconSuffix("");  
+	      treeGrid.setShowOpenIcons(false);  
+	      treeGrid.setShowDropIcons(false);  
+	      treeGrid.setShowNodeIcons(false);
+	      treeGrid.setClosedIconSuffix("");  
 	      treeGrid.setShowFolderIcons(true);
 	      
 	      //columns
 	      TreeGridField icons = new TreeGridField("icons", "", 100);
-	      
 	    	icons.setCellFormatter(new CellFormatter() {  
 		          public String format(Object value, ListGridRecord record, int rowNum, int colNum) {  
+		        	  if (record.getAttributeAsInt("ch_count") == 0) {
+		        		  treeGrid.openGroup(record);
+		        	  }
 		        	  return "";
 		          }
-		      });
+		      });    	
+	    	
 	      icons.setAlign(Alignment.CENTER);
 	      // handle show open
 	      
 	      //
-	      TreeGridField idfieldTree = new TreeGridField("id", "ID" , 60);  
+	      TreeGridField idfieldTree = new TreeGridField("id", "ID" , 40);  
 	      idfieldTree.setAlign(Alignment.CENTER);
 //	      idfieldTree.setHidden(true);
-	      TreeGridField ch_count = new TreeGridField("ch_count", "ch_count" , 60);  
+	      TreeGridField ch_count = new TreeGridField("ch_count", "ch_count" , 80);  
 	      ch_count.setAlign(Alignment.CENTER);
 	      TreeGridField parentIDfieldTree = new TreeGridField("parentID", "Parent ID", 80);  
 	      parentIDfieldTree.setAlign(Alignment.CENTER);
-//	      parentIDfield.setHidden(true);
+	      parentIDfieldTree.setHidden(true);
 	      TreeGridField firstnameTree = new TreeGridField("firstname", "Firstname", 120);  
 	      firstnameTree.setAlign(Alignment.CENTER);
 	      TreeGridField lastnameTree = new TreeGridField("lastname", "Lastname", 120);   
