@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Timer;
+import com.smartgwt.client.docs.CSSStyleName;
 import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.types.DSOperationType;
 import com.smartgwt.client.types.FetchMode;
@@ -484,13 +485,22 @@ public class Dashboard {
 	      treeGrid.setShowFolderIcons(true);
 	      
 	      //columns
-	      TreeGridField icons = new TreeGridField("icons", "", 100);  
+	      TreeGridField icons = new TreeGridField("icons", "", 100);
+	      
+	    	icons.setCellFormatter(new CellFormatter() {  
+		          public String format(Object value, ListGridRecord record, int rowNum, int colNum) {  
+		        	  return "";
+		          }
+		      });
 	      icons.setAlign(Alignment.CENTER);
+	      // handle show open
 	      
-	      
+	      //
 	      TreeGridField idfieldTree = new TreeGridField("id", "ID" , 60);  
 	      idfieldTree.setAlign(Alignment.CENTER);
 //	      idfieldTree.setHidden(true);
+	      TreeGridField ch_count = new TreeGridField("ch_count", "ch_count" , 60);  
+	      ch_count.setAlign(Alignment.CENTER);
 	      TreeGridField parentIDfieldTree = new TreeGridField("parentID", "Parent ID", 80);  
 	      parentIDfieldTree.setAlign(Alignment.CENTER);
 //	      parentIDfield.setHidden(true);
@@ -504,10 +514,10 @@ public class Dashboard {
 	      TreeGridField parentNameTree = new TreeGridField("parentName", "Parent", 150);
 	      parentNameTree.setAlign(Alignment.CENTER);
 	      
-	      treeGrid.setFields(icons, idfieldTree, firstnameTree, lastnameTree, parentNameTree
+	      treeGrid.setFields(icons, ch_count, idfieldTree, firstnameTree, lastnameTree, parentNameTree
 	    		  , parentIDfieldTree, ageTree); 
 	      
-	      String[] treeFields = {"id", "parentID", "firstname", "lastname", "parentName", "age"};
+	      String[] treeFields = {"ch_count", "id", "parentID", "firstname", "lastname", "parentName", "age"};
 	      UsersDS treeDS = new UsersDS(treeFields, Type.TREE, new ValueCallback() {
 			
 				@Override
