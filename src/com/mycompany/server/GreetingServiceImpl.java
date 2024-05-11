@@ -1,6 +1,7 @@
 package com.mycompany.server;
 
 import com.mycompany.client.GreetingService;
+import com.mycompany.shared.User;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 /**
@@ -10,10 +11,12 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 public class GreetingServiceImpl extends RemoteServiceServlet implements
     GreetingService {
 
-  public String greetServer(String input) {
-    String serverInfo = getServletContext().getServerInfo();
-    String userAgent = getThreadLocalRequest().getHeader("User-Agent");
-    return "Hello, " + input + "!<br><br>I am running " + serverInfo
-        + ".<br><br>It looks like you are using:<br>" + userAgent;
+  public String greetServer(User user) {
+	  
+//	  getThreadLocalRequest().getSession().set
+	  
+	  if(DBManager.addUser(user))
+		  return "ok";
+	  return "error";
   }
 }

@@ -1,7 +1,8 @@
 package com.mycompany.client;
 
-
-import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.mycompany.shared.User;
 import com.smartgwt.client.util.SC;
 import com.smartgwt.client.widgets.form.DynamicForm;
 import com.smartgwt.client.widgets.form.fields.ButtonItem;
@@ -10,20 +11,22 @@ import com.smartgwt.client.widgets.form.fields.TextItem;
 import com.smartgwt.client.widgets.form.fields.IntegerItem;
 import com.smartgwt.client.widgets.form.fields.events.ClickEvent;
 import com.smartgwt.client.widgets.form.fields.events.ClickHandler;
+import com.smartgwt.client.widgets.tab.TabSet;
+
 import jsinterop.annotations.JsMethod;
 
-public class SignUp implements EntryPoint {
+public class SignUp {
 	
 	DynamicForm form;
-//	private static final String EMAIL_REGEX =
-//            "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
-//
-//    private static final Pattern pattern = Pattern.compile(EMAIL_REGEX);
+	TabSet topTabSet;
 	
-	public DynamicForm buildForm() {
+	private final GreetingServiceAsync greetingService = GWT.create(GreetingService.class);
+	
+	public DynamicForm buildForm(TabSet topTabSet) {
 		if (form == null) {
 			form =  new DynamicForm(); 
-			onModuleLoad();
+			this.topTabSet = topTabSet;
+			build();
 		}
 		return form;
 	}
@@ -36,9 +39,18 @@ public class SignUp implements EntryPoint {
 	IntegerItem age;
 	TextItem phoneNumber;
 	ButtonItem buttonItem;
+	
+	private void clearFields() {
+		firstname.setValue("");
+		lastname.setValue("");
+		password.setValue("");
+		repeat.setValue("");
+		email.setValue("");
+		age.setValue("");
+		phoneNumber.setValue("");
+	}
 
-	@Override
-	public void onModuleLoad() {
+	public void build() {
         form.setWidth(300);  
           
         firstname = new TextItem();  
@@ -67,16 +79,17 @@ public class SignUp implements EntryPoint {
         repeat.setTitle("Repeat:");
         repeat.setDefaultValue("");  
 
-        age = new IntegerItem();  
+        age = new IntegerItem();
         age.setName("age");  
         age.setTitle("Age:");
         age.setDefaultValue("");  
         age.setKeyPressFilter("[0-9]");
         
-        phoneNumber = new TextItem();  
+        phoneNumber = new TextItem();
         phoneNumber.setName("phoneNumber");  
         phoneNumber.setTitle("PhoneNumber:");
-        phoneNumber.setDefaultValue("");  
+        phoneNumber.setDefaultValue("");
+        phoneNumber.setKeyPressFilter("[0-9]");
   
         buttonItem = new ButtonItem();  
         buttonItem.setName("submit");  
@@ -86,7 +99,6 @@ public class SignUp implements EntryPoint {
 			
 			@Override
 			public void onClick(ClickEvent event) {
-				
 				if (empty(firstname.getValueAsString()) ||
 						empty(lastname.getValueAsString()) ||
 						empty(email.getValueAsString()) ||
@@ -97,8 +109,31 @@ public class SignUp implements EntryPoint {
 					SC.say("Error", "Please fill all fields!");
 				}
 				else if (checkFields()) {
-					// create account
-					SC.say("Well Done");
+//					 create account
+				greetingService.greetServer(new User(firstname.getValueAsString().trim(),
+						lastname.getValueAsString().trim(),
+						phoneNumber.getValueAsString().trim(),
+						email.getValueAsString().trim(),
+						password.getValueAsString().trim(),
+						age.getValueAsString().trim()),
+						
+					new AsyncCallback<String>() {
+					@Override
+					public void onFailure(Throwable caught) {
+						SC.say("Error", "sth went wrong");
+					}
+
+					@Override
+					public void onSuccess(String result) {
+						if (result == "ok") {
+							clearFields();
+							SC.say("Boom!", "Welcome");
+							topTabSet.selectTab(0);
+						}
+						else if (result == "error")
+							SC.say("Error", "A user with this email is already registered!");
+					}
+				  });
 				}
 				
 			}

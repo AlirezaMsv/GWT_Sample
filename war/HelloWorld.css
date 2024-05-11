@@ -3,3 +3,22 @@
 	left: 40%;
 	top: 20%;
 }
+
+.logout_btn{
+	position: static;
+	left: 10%;
+	top: 10%;
+}
+
+.grid{
+	width: 100%;
+	position: relative;
+	display: flex;
+	justify-content: center;
+}
+
+.trash{
+	position: absolute;
+	right: 10%;
+	top: 10%;
+}
