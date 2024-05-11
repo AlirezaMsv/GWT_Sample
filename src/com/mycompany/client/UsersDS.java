@@ -174,13 +174,11 @@ public class UsersDS extends GwtRpcDataSource {
 		// handle tree fetch
 		else if (type.equals(Type.TREE) || type.equals(Type.PICK)) {
 			// fetch users
-			if (type.equals(Type.PICK)) {
-				for (String i : request.getAttributes()) {
-					GWT.log(i);
-				}
-			}
+			
 			RPCManager.setPromptStyle(PromptStyle.CURSOR);
-			usersService.fetchTree(openedID, type.equals(Type.PICK) ? -1 : request.getStartRow(), type.equals(Type.PICK) ? -1 : request.getEndRow(), new AsyncCallback<ArrayList<HashMap<String, String>>>() {			
+			usersService.fetchTree(request.getAttributeAsRecord("data").getAttribute("parentID") == null ? 0 : 
+				Integer.parseInt(request.getAttributeAsRecord("data").getAttribute("parentID")), 
+				type.equals(Type.PICK) ? -1 : request.getStartRow(), type.equals(Type.PICK) ? -1 : request.getEndRow(), new AsyncCallback<ArrayList<HashMap<String, String>>>() {			
 				@Override
 				public void onSuccess(ArrayList<HashMap<String, String>> result) {
 					//grid

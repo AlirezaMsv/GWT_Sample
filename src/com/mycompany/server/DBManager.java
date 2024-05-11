@@ -285,10 +285,10 @@ public class DBManager {
     	// SQL query to fetch all rows with the count of children
     	String query = end < 0 ? 
     			
-    			"SELECT id, firstname, lastname, parentID " +
-	               "FROM usersinfo" 
-//	               + " WHERE parentID " +
-//	               (row == 0 ? "IS NULL" : ("= " + row))
+    			"SELECT u.id, u.firstname, u.lastname, u.parentID, " +
+	               "(SELECT COUNT(*) FROM usersinfo WHERE parentID = u.id) AS ch_count " +
+	               "FROM usersinfo u WHERE parentID " +
+	               (row == 0 ? "IS NULL" : ("= " + row))
     			
     			: "SELECT SQL_CALC_FOUND_ROWS u.id, u.firstname, u.lastname, u.parentID, u.parentName, u.age, " +
     	               "(SELECT COUNT(*) FROM usersinfo WHERE parentID = u.id) AS ch_count " +
@@ -329,6 +329,7 @@ public class DBManager {
     	    		row1.put("id", rs.getString("id"));
     	    		row1.put("name", rs.getString("firstname") + " " + rs.getString("lastname"));
     	    		row1.put("parentID", rs.getString("parentID"));
+    	    		row1.put("ch_count", rs.getString("ch_count"));
     	    		res.add(row1);
     	    	}
     	    }

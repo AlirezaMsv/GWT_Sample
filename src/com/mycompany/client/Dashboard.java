@@ -387,22 +387,14 @@ public class Dashboard {
 	      
 	      // create pick item
 	      pickParentCreate = new IPickTreeItem("parentInfo", "Parent Info:");
-	      String[] pickFields = {"id", "name", "parentID"};
+	      String[] pickFields = {"id", "name", "parentID", "ch_count"};
 	      UsersDS pickDS = new UsersDS(pickFields, Type.PICK);
 	      pickParentCreate.setDataSource(pickDS);
 	      pickParentCreate.setValueField("name");
 	      pickParentCreate.setEmptyMenuMessage("No parents");  
 	      pickParentCreate.setCanSelectParentItems(true); 
 	      pickParentCreate.setEmptyDisplayValue("Select your parent!"); 
-	      pickParentCreate.setLoadDataOnDemand(false);
-	      pickParentCreate.addClickHandler(new com.smartgwt.client.widgets.form.fields.events.ClickHandler() {
-			
-			@Override
-			public void onClick(com.smartgwt.client.widgets.form.fields.events.ClickEvent event) {
-				// TODO Auto-generated method stub
-				pickParentCreate.clearErrors();	
-			}
-		});
+	      pickParentCreate.setLoadDataOnDemand(true);
 	      ////end pick
 	      
 	      
