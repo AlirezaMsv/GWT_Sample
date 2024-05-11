@@ -174,31 +174,39 @@ public class UsersDS extends GwtRpcDataSource {
 		// handle tree fetch
 		else if (type.equals(Type.TREE) || type.equals(Type.PICK)) {
 			// fetch users
-			
-			RPCManager.setPromptStyle(PromptStyle.CURSOR);
-			usersService.fetchTree(request.getAttributeAsRecord("data").getAttribute("parentID") == null ? 0 : 
-				Integer.parseInt(request.getAttributeAsRecord("data").getAttribute("parentID")), 
-				type.equals(Type.PICK) ? -1 : request.getStartRow(), type.equals(Type.PICK) ? -1 : request.getEndRow(), new AsyncCallback<ArrayList<HashMap<String, String>>>() {			
-				@Override
-				public void onSuccess(ArrayList<HashMap<String, String>> result) {
-					//grid
-					if (type.equals(Type.TREE)) {
-						response.setTotalRows(Integer.parseInt(result.get(result.size() - 1).get("n")));
-						result.remove(result.size() - 1);
+			Integer chCount = request.getAttributeAsRecord("$135w").getAttributeAsInt("ch_count");
+			if (chCount != null && chCount <= 0) {
+			    // Your logic here
+				processResponse(requestId, response);
+			}
+			else {
+				RPCManager.setPromptStyle(PromptStyle.CURSOR);
+				usersService.fetchTree(type.equals(Type.TREE) ? openedID :
+					request.getAttributeAsRecord("data").getAttribute("parentID") == null ? 0 : 
+						Integer.parseInt(request.getAttributeAsRecord("data").getAttribute("parentID"))
+					, 
+					type.equals(Type.PICK) ? -1 : request.getStartRow(), type.equals(Type.PICK) ? -1 : request.getEndRow(), new AsyncCallback<ArrayList<HashMap<String, String>>>() {			
+					@Override
+					public void onSuccess(ArrayList<HashMap<String, String>> result) {
+						//grid
+						if (type.equals(Type.TREE)) {
+							response.setTotalRows(Integer.parseInt(result.get(result.size() - 1).get("n")));
+							result.remove(result.size() - 1);
+						}
+						else
+							response.setTotalRows(result.size());
+						setGridData(result, response);
+						// process response
+						processResponse(requestId, response);
 					}
-					else
-						response.setTotalRows(result.size());
-					setGridData(result, response);
-					// process response
-					processResponse(requestId, response);
-				}
-				
-				@Override
-				public void onFailure(Throwable caught) {
-					// TODO Auto-generated method stub
-					SC.say("Error!");
-				}
-			});
+					
+					@Override
+					public void onFailure(Throwable caught) {
+						// TODO Auto-generated method stub
+						SC.say("Error!");
+					}
+				});
+			}
 		}
 	}
 	
