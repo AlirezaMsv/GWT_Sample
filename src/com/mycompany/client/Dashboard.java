@@ -15,19 +15,28 @@ import com.smartgwt.client.widgets.events.MouseDownEvent;
 import com.smartgwt.client.widgets.events.MouseDownHandler;
 import com.smartgwt.client.widgets.form.DynamicForm;
 import com.smartgwt.client.widgets.form.fields.ComboBoxItem;
+import com.smartgwt.client.widgets.form.fields.IPickTreeItem;
 import com.smartgwt.client.widgets.form.fields.IntegerItem;
 import com.smartgwt.client.widgets.form.fields.PasswordItem;
 import com.smartgwt.client.widgets.form.fields.TextAreaItem;
 import com.smartgwt.client.widgets.form.fields.TextItem;
+import com.smartgwt.client.widgets.form.fields.events.ChangeEvent;
+import com.smartgwt.client.widgets.form.fields.events.ChangeHandler;
 import com.smartgwt.client.widgets.form.fields.events.ChangedEvent;
 import com.smartgwt.client.widgets.form.fields.events.ChangedHandler;
+import com.smartgwt.client.widgets.form.fields.events.FocusEvent;
+import com.smartgwt.client.widgets.form.fields.events.FocusHandler;
+import com.smartgwt.client.widgets.form.fields.events.ItemHoverEvent;
+import com.smartgwt.client.widgets.form.fields.events.ItemHoverHandler;
+import com.smartgwt.client.widgets.form.fields.events.TitleClickEvent;
+import com.smartgwt.client.widgets.form.fields.events.TitleClickHandler;
+import com.smartgwt.client.widgets.form.fields.events.ValueHoverEvent;
+import com.smartgwt.client.widgets.form.fields.events.ValueHoverHandler;
 
 import java.util.ArrayList;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Timer;
-import com.smartgwt.client.docs.CSSStyleName;
 import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.types.DSOperationType;
 import com.smartgwt.client.types.FetchMode;
@@ -35,7 +44,6 @@ import com.smartgwt.client.types.ListGridFieldType;
 import com.smartgwt.client.types.SelectionAppearance;
 import com.smartgwt.client.types.SelectionStyle;
 import com.smartgwt.client.types.Side;
-import com.smartgwt.client.widgets.grid.CellCSSTextCustomizer;
 import com.smartgwt.client.widgets.grid.CellFormatter;  
 import com.smartgwt.client.widgets.grid.ListGrid;  
 import com.smartgwt.client.widgets.grid.ListGridField;  
@@ -50,11 +58,6 @@ import com.smartgwt.client.widgets.tab.Tab;
 import com.smartgwt.client.widgets.tab.TabSet;
 import com.smartgwt.client.widgets.tree.TreeGrid;
 import com.smartgwt.client.widgets.tree.TreeGridField;
-import com.smartgwt.client.widgets.tree.TreeNode;
-import com.smartgwt.client.widgets.tree.events.FolderClickEvent;
-import com.smartgwt.client.widgets.tree.events.FolderClickHandler;
-import com.smartgwt.client.widgets.tree.events.FolderOpenedEvent;
-import com.smartgwt.client.widgets.tree.events.FolderOpenedHandler;
 
 import jsinterop.annotations.JsMethod;
 
@@ -81,7 +84,7 @@ public class Dashboard {
 	private static IntegerItem txtAgeCreate;
 	private static TextItem txtPhoneNumCreate;
 	private static PasswordItem txtPasswordCreate;
-	private static ComboBoxItem comboParentCreate;
+	private static IPickTreeItem pickParentCreate;
 	// buttons
 	private static IButton createBtn;
 	private static IButton editBtn;
@@ -136,11 +139,11 @@ public class Dashboard {
 	}
 	
 	private static Widget getGrid() {
-		if (topTabSet != null)
-		{
-			usersGrid.invalidateCache();
-			return topTabSet;
-		}
+//		if (topTabSet != null)
+//		{
+//			usersGrid.invalidateCache();
+//			return topTabSet;
+//		}
 		
 		topTabSet = new TabSet();
 		usersGrid = new ListGrid();
@@ -379,47 +382,30 @@ public class Dashboard {
 	      txtEmailCreate = new TextItem("email", "Email:");
 	      txtPasswordCreate = new PasswordItem("password", "Password");
 	      // Combo Create
-	      comboParentCreate = new ComboBoxItem("parentInfo", "Parent Info:");
-	      String[] comboCreateFields = {"id", "name"};
-	      UsersDS comboCreateDS = new UsersDS(comboCreateFields, Type.COMBOALL);
-	      comboParentCreate.setOptionDataSource(comboCreateDS);
-	      ListGridField idCreateCombo = new ListGridField("id", "id");  
-	      idCreateCombo.setAlign(Alignment.CENTER);
-	      ListGridField nameCombo = new ListGridField("name", "name");
-	      nameCombo.setAlign(Alignment.CENTER);
-	      // comboParentEdit.setPickListFields(idCombo, nameCombo);
-	      comboParentCreate.setValueField("id");
-	      comboParentCreate.setDisplayField("name");
-	      comboParentCreate.setFetchDelay(1000);
-	      comboParentCreate.setShowPending(true); 
-//	      comboParentCreate.setAutoFetchData(true); 
-//	      comboParentEdit.setPickListPlacement("fillScreen");
-	      comboParentCreate.addChangedHandler(new ChangedHandler() {
+	      
+	      /// end combo
+	      
+	      // create pick item
+	      pickParentCreate = new IPickTreeItem("parentInfo", "Parent Info:");
+	      String[] pickFields = {"id", "name", "parentID"};
+	      UsersDS pickDS = new UsersDS(pickFields, Type.PICK);
+	      pickParentCreate.setDataSource(pickDS);
+	      pickParentCreate.setValueField("name");
+	      pickParentCreate.setEmptyMenuMessage("No parents");  
+	      pickParentCreate.setCanSelectParentItems(true); 
+	      pickParentCreate.setEmptyDisplayValue("Select your parent!"); 
+	      pickParentCreate.setLoadDataOnDemand(false);
+	      pickParentCreate.addClickHandler(new com.smartgwt.client.widgets.form.fields.events.ClickHandler() {
 			
 			@Override
-			public void onChanged(ChangedEvent event) {
-				if (comboParentCreate.getValueAsString() == null) {
-					comboCreateDS.setSearchValue("");
-				}
-				else
-					comboCreateDS.setSearchValue(comboParentCreate.getValueAsString().trim().toString());
+			public void onClick(com.smartgwt.client.widgets.form.fields.events.ClickEvent event) {
 				// TODO Auto-generated method stub
-				if (timer != null) {
-                    timer.cancel();
-                }
-                
-                // Start a new timer to trigger the server request
-                timer = new Timer() {
-                    @Override
-                    public void run() {
-                        // Call your server request method here
-                    	comboParentCreate.fetchData();
-                    }
-                };
-                timer.schedule(1000); // Schedule the timer to execute after 1 second
+				pickParentCreate.clearErrors();	
 			}
 		});
-	      /// end combo
+	      ////end pick
+	      
+	      
 	      btns = new VLayout();
 	      btns.setMembersMargin(15);
 	      createBtn = new IButton("Add");
@@ -464,7 +450,7 @@ public class Dashboard {
 	      btns.addMember(createBtn);
 	      btns.addMember(cancelBtnCreate);
 	      
-	      addForm.setFields(txtFirstnameCreate, txtLastnameCreate, comboParentCreate, txtAgeCreate, 
+	      addForm.setFields(txtFirstnameCreate, txtLastnameCreate, pickParentCreate, txtAgeCreate, 
 	    		  txtPhoneNumCreate, txtEmailCreate, txtPasswordCreate);
 	        
 	      addLayout.addMember(addForm);
@@ -643,7 +629,7 @@ public class Dashboard {
 		txtAgeCreate.clearValue();
 		txtPhoneNumCreate.clearValue();
 		txtEmailCreate.clearValue();
-		comboParentCreate.clearValue();
+		pickParentCreate.clearValue();
 	}
 	
 	public static void show() {

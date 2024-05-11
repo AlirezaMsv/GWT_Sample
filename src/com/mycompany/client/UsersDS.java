@@ -25,7 +25,8 @@ public class UsersDS extends GwtRpcDataSource {
 		FORM,
 		COMBOALL,
 		COMBOOTHERS,
-		TREE
+		TREE,
+		PICK
 	}
 	
 	Type type;
@@ -64,34 +65,11 @@ public class UsersDS extends GwtRpcDataSource {
 	
 	public UsersDS(String[] fields, Type type){
 		this.type = type;
-		for (String i : fields) {
-			DataSourceField dt = new DataSourceField(i, FieldType.TEXT, i);
-			if (i.equals("id")) {
-				dt.setPrimaryKey(true);
-			}
-			this.addField(dt);
-		}
-	}	
-	
-	public UsersDS(String[] fields, Type type, int id, ValueCallback cb){
-		this.type = type;
-		this.id = id;
-		this.cb = cb;
-		for (String i : fields) {
-			DataSourceField dt = new DataSourceField(i, FieldType.TEXT, i);
-			if (i.equals("id")) {
-				dt.setCanEdit(false);
-				dt.setPrimaryKey(true);
-			}
-			this.addField(dt);
-		}
-	}	
-	
-	public UsersDS(String[] fields, Type type, ValueCallback cb){
-		this.type = type;
-		this.cb = cb;
 		if (type.equals(Type.TREE)) {
 			this.setID("treeDS");
+		}
+		else if(type.equals(Type.PICK)) {
+			this.setID("pickDS");
 		}
 		for (String i : fields) {
 			DataSourceField dt = new DataSourceField(i, FieldType.TEXT, i);
@@ -102,8 +80,22 @@ public class UsersDS extends GwtRpcDataSource {
 				dt.setForeignKey("treeDS.parentID");
 		        // dt.setRootValue("-1");
 			}
+			else if (i.equals("parentID") && type.equals(Type.PICK)) {
+				dt.setForeignKey("pickDS.id");
+			}
 			this.addField(dt);
 		}
+	}	
+	
+	public UsersDS(String[] fields, Type type, int id, ValueCallback cb){
+		this(fields, type);
+		this.id = id;
+		this.cb = cb;
+	}	
+	
+	public UsersDS(String[] fields, Type type, ValueCallback cb){
+		this(fields, type);
+		this.cb = cb;
 	}
 
 	@Override
@@ -180,15 +172,24 @@ public class UsersDS extends GwtRpcDataSource {
 			});
 		}
 		// handle tree fetch
-		else if (type.equals(Type.TREE)) {
+		else if (type.equals(Type.TREE) || type.equals(Type.PICK)) {
 			// fetch users
+			if (type.equals(Type.PICK)) {
+				for (String i : request.getAttributes()) {
+					GWT.log(i);
+				}
+			}
 			RPCManager.setPromptStyle(PromptStyle.CURSOR);
-			usersService.fetchTree(openedID, request.getStartRow(), request.getEndRow(), new AsyncCallback<ArrayList<HashMap<String, String>>>() {			
+			usersService.fetchTree(openedID, type.equals(Type.PICK) ? -1 : request.getStartRow(), type.equals(Type.PICK) ? -1 : request.getEndRow(), new AsyncCallback<ArrayList<HashMap<String, String>>>() {			
 				@Override
 				public void onSuccess(ArrayList<HashMap<String, String>> result) {
 					//grid
-					response.setTotalRows(Integer.parseInt(result.get(result.size() - 1).get("n")));
-					result.remove(result.size() - 1);
+					if (type.equals(Type.TREE)) {
+						response.setTotalRows(Integer.parseInt(result.get(result.size() - 1).get("n")));
+						result.remove(result.size() - 1);
+					}
+					else
+						response.setTotalRows(result.size());
 					setGridData(result, response);
 					// process response
 					processResponse(requestId, response);
